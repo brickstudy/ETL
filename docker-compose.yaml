@@ -118,8 +118,8 @@ services:
   airflow-webserver:
     <<: *airflow-common
     command: webserver
-    expose:
-      - "8080"
+    ports:
+      - "8080:8080"
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
       interval: 30s
@@ -340,13 +340,6 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
-  
 
 volumes:
   postgres-db-volume:
-
-
-
-  
-
-  
