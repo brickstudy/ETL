@@ -2,7 +2,7 @@
 import urllib.request
 import logging
 
-from data_ingest_from_naver import NaverAPI
+from brickstudy_ingestion.src.naver_api import NaverAPI
 
 class Logger:
     def __init__(self, name: str) -> None:
@@ -16,6 +16,7 @@ class NaverSearchAPI(NaverAPI):
         : target_search_platform : 검색 대상 플랫폼(blog, news, cafe, etc)
         : respond_format         : api 응답 반환 포맷(json or xml)
         """
+        super().__init__()
         self.url = f"https://openapi.naver.com/v1/search/{target_search_platform}.{respond_format}?query="
         self.log_instance = Logger(target_search_platform)
 
