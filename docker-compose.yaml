@@ -75,7 +75,7 @@ x-airflow-common:
     AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/brickstudy_ingestion/dags
     PYTHONPATH: /opt/airflow/brickstudy_ingestion
   volumes:
-    - ${AIRFLOW_PROJ_DIR:-.}/brickstudy_ingestion/dags:/opt/airflow/brickstudy_ingestion/dags
+    - ${AIRFLOW_PROJ_DIR:-.}/brickstudy_ingestion:/opt/airflow/brickstudy_ingestion
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
     - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
