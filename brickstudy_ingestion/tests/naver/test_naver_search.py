@@ -1,14 +1,8 @@
-import os
 import pytest
-import requests
-from dotenv import load_dotenv
-
-from src.naver.naver_search import NaverSearch
-from src.common.exception import ExtractError
 from src.common.errorcode import Naver
+from src.common.exception import ExtractError
+from src.naver.naver_search import NaverSearch
 
-# .env 파일 로드
-load_dotenv()
 
 # Mock
 PLATFROM = "news"
@@ -39,17 +33,13 @@ def test_nave_search_can_connect_client_with_valid():
 
 def test_naver_search_cannot_connect_client_with_invalid_id():
     # given : 잘못된 네이버 ID
-    client_id = "wrong_id_123"
-    client_secret = os.getenv('NAVER_API_CLIENT_SECERT')
+    wrong_id = "wrong_id"
 
     # when : Naver news api 요청
     # then : errorcode
     with pytest.raises(ExtractError):
         client = NaverSearch(PLATFROM, RESPONSE_FORMAT)
-        client.headers = {
-            "X-Naver-Client-Id": client_id,
-            "X-Naver-Client-Secret": client_secret
-        }
+        client.headers["X-Naver-Client-Id"] = wrong_id
         result = client.request_with_keword(QUERY, DISPLAY, START, SORT)
 
         assert result["message"] == Naver.AuthError.value["message"]
@@ -59,17 +49,13 @@ def test_naver_search_cannot_connect_client_with_invalid_id():
 
 def test_naver_search_cannot_connect_client_with_invalid_secret_key():
     # given : 잘못된 네이버 ID
-    client_id = os.getenv('NAVER_API_CLIENT_ID')
-    client_secret = "wrong_secret"
+    wrong_secret = "wrong_secret"
 
     # when : Naver news api 요청
     # then : errorcode
     with pytest.raises(ExtractError):
         client = NaverSearch(PLATFROM, RESPONSE_FORMAT)
-        client.headers = {
-            "X-Naver-Client-Id": client_id,
-            "X-Naver-Client-Secret": client_secret
-        }
+        client.headers["X-Naver-Client-Secret"] = wrong_secret
         result = client.request_with_keword(QUERY, DISPLAY, START, SORT)
 
         assert result["message"] == Naver.AuthError.value["message"]
