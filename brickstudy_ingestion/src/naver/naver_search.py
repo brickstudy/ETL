@@ -1,5 +1,7 @@
 import requests
 from . import client_id, client_secret
+from src.common.exception import ExtractError
+from src.common.errorcode import Naver
 
 
 class NaverSearch:
@@ -21,9 +23,15 @@ class NaverSearch:
             start: int = 1,
             sort: str = "sim"
     ) -> dict:
-        sub_url = f"?query={query}&display={display}&start={start}&sort={sort}"
-        url = self.base_url + sub_url
+        try:
+            sub_url = f"?query={query}&display={display}&start={start}&sort={sort}"
+            url = self.base_url + sub_url
 
-        response = requests.get(url, headers=self.headers)
+            response = requests.get(url, headers=self.headers)
 
-        return response
+            if response.status_code == 401:
+                raise ExtractError(**Naver.AuthError.value,
+                                   log=response.json())
+            return response.json()
+        except Exception as e:
+            raise ExtractError(**Naver.UnknownError.value, log=str(e))
