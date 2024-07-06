@@ -2,6 +2,7 @@ import os
 import requests
 from dotenv import load_dotenv
 
+from src.naver.naver_search import NaverSearch
 
 # .env 파일 로드
 load_dotenv()
@@ -17,19 +18,10 @@ SORT = "sim"    # 검색 결과 정렬 방법 - sim: 정확도순으로 내림�
 
 def test_nave_search_can_connect_client_with_valid():
     # given : 유효한 네이버 ID, SECRET KEY
-    client_id = os.getenv('NAVER_API_CLIENT_ID')
-    client_secret = os.getenv('NAVER_API_CLIENT_SECERT')
 
     # when : Naver news api 요청
-    base_url = f"https://openapi.naver.com/v1/search/{PLATFROM}.{RESPONSE_FORMAT}"
-    sub_url = f"?query={QUERY}&display={DISPLAY}&start={START}&sort={SORT}"
-    url = base_url + sub_url
-    headers = {
-        "X-Naver-Client-Id": client_id,
-        "X-Naver-Client-Secret": client_secret
-    }
-
-    response = requests.get(url, headers=headers)
+    client = NaverSearch(PLATFROM, RESPONSE_FORMAT)
+    response = client.request_with_keword(QUERY, DISPLAY, START, SORT)
 
     # then : json 데이터 확인
     assert response.status_code == 200
