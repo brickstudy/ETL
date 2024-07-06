@@ -20,9 +20,8 @@ log_file="$log_dir/$today_date"
 if [ ! -f "$log_file" ]; then
     # 파일이 존재하지 않으면 파일을 생성
     touch "$log_file"
-    echo "$log_file 파일이 생성되었습니다."
+    echo "$(date): $log_file 파일이 생성되었습니다." >> $log_file 2>&1
 else
-    echo "$log_file 파일이 이미 존재합니다."
 fi
 
 # 원격 저장소의 변경 사항을 가져옵니다.
@@ -32,10 +31,6 @@ git fetch
 LOCAL=$(git rev-parse @)
 REMOTE=$(git rev-parse @{u})
 BASE=$(git merge-base @ @{u})
-
-
-echo "$(date): Your script is running" >> $log_file 2>&1
-
 
 if [ $LOCAL = $REMOTE ]; then
     echo "$(date): 로컬 저장소가 최신 상태입니다." >> $log_file 2>&1
