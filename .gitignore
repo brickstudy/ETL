@@ -5,3 +5,6 @@ ETL
 
 # airflow
 logs
+
+# system log
+log
