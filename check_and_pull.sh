@@ -22,6 +22,7 @@ if [ ! -f "$log_file" ]; then
     touch "$log_file"
     echo "$(date): $log_file 파일이 생성되었습니다." >> $log_file 2>&1
 else
+    echo "파일이 존재 합니다."
 fi
 
 # 원격 저장소의 변경 사항을 가져옵니다.
@@ -41,7 +42,7 @@ elif [ $LOCAL = $BASE ]; then
     echo "$(date): 정상적으로 git pull을 실행했습니다." >> $log_file 2>&1
     
     docker restart etl-airflow-scheduler-1
-    echo "$(date): 정상적으로 docer scheduler을 재실행 했습니다." >> $log_file 2>&1
+    echo "$(date): 정상적으로 docker scheduler을 재실행 했습니다." >> $log_file 2>&1
 elif [ $REMOTE = $BASE ]; then
     echo "$(date): 로컬 저장소에 커밋되지 않은 변경 사항이 있습니다. 먼저 커밋을 하세요." >> $log_file 2>&1
 else
