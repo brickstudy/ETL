@@ -1,10 +1,27 @@
+import json
+import requests
+from datetime import datetime
+
 from airflow import DAG
-from airflow.providers.http.operators.http import SimpleHttpOperator
-from airflow.utils.dates import days_ago
+from airflow.hooks.base import BaseHook
+from airflow.operators.python import PythonOperator
+
+
+
+def send_discord_message():
+    connection = BaseHook.get_connection('discord_webhook')
+    url = connection.host
+    headers = {"Content-Type": "application/json"}
+    data = {
+        "content": "Airflow에서 보내는 테스트 메시지입니다."
+    }
+    
+    response = requests.post(url, headers=headers, data=json.dumps(data).encode('utf-8'))
+    response.raise_for_status()
 
 default_args = {
     'owner': 'airflow',
-    'start_date': days_ago(1),
+    'start_date': datetime(2023, 7, 10),
 }
 
 with DAG(
@@ -12,14 +29,10 @@ with DAG(
     default_args=default_args,
     schedule_interval=None,
 ) as dag:
-    
-    send_discord_message = SimpleHttpOperator(
+
+    send_message_task = PythonOperator(
         task_id='send_discord_message',
-        http_conn_id='discord_webhook',
-        endpoint='',
-        method='POST',
-        headers={"Content-Type": "application/json"},
-        data='{"content": "Airflow에서 보내는 테스트 메시지입니다."}',
+        python_callable=send_discord_message,
     )
 
-    send_discord_message
+    send_message_task
