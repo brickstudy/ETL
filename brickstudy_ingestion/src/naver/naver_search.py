@@ -1,3 +1,4 @@
+import urllib.request
 import requests
 from . import client_id, client_secret
 from src.common.errorcode import Naver
@@ -29,14 +30,18 @@ class NaverSearch:
             sort: str = "sim"   # 검색 결과 정렬 방법 - sim: 정확도순으로 내림차순 정렬(기본값) - date: 날짜순으로 내림차순 정렬
     ) -> dict:
         try:
-            sub_url = f"?query={query}&display={display}&start={start}&sort={sort}"
-            url = self.base_url + sub_url
+            encText = urllib.parse.quote(query)
+            sub_url = f"&display={display}&start={start}&sort={sort}"
+            url = self.base_url + encText + sub_url
 
-            response = requests.get(url, headers=self.headers)
-
-            if response.status_code == 401:
+            request = urllib.request.Request(url, headers=self.headers)
+            response = urllib.request.urlopen(request)
+            resCode = response.getcode()
+            if resCode == 401:
                 raise ExtractError(**Naver.AuthError.value,
                                    log=response.json())
-            return response.json()
+            elif resCode == 200:
+                return response.read().decode('utf-8').items
+            
         except Exception as e:
             raise ExtractError(**Naver.UnknownError.value, log=str(e))
