@@ -104,3 +104,9 @@ def test_naver_search_can_connect_to_aws():
 
     assert json_content == data
 
+
+def test_s3_uploader_mime_get_right_content_type():
+    
+    extension = "json"
+    content_type = EXTENSION_TO_MIME.get(extension) 
+    assert content_type == 'application/json'
