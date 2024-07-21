@@ -83,12 +83,14 @@ def test_naver_search_can_connect_to_aws():
         aws_secret_access_key=aws_secret_access_key
     )
     bucket_name = 'brickstudy'
-    file_destination='travel/bronze/naverAPI/blog/'
-    file_name=f'{PLATFROM}_{QUERY}_{datetime.today().strftime("%Y-%m-%d")}'
+    id = datetime.today().strftime("%Y-%m-%d %H:%M:%S.%f")
+    file_destination=f'travel/bronze/naverAPI/{PLATFROM}/'
+    file_name=f'{PLATFROM}_{QUERY}_{id}'
+    file_key=file_destination+file_name
  
     s3.put_object(
         Bucket=bucket_name, 
-        Key=file_destination+file_name, 
+        Key=file_key, 
         Body=json.dumps(result),
         ContentType='application/json'
     )
