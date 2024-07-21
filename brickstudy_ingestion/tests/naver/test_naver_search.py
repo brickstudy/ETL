@@ -2,7 +2,7 @@ import pytest
 from src.common.errorcode import Naver
 from src.common.exception import ExtractError
 from src.naver.naver_search import NaverSearch
-
+from src.common.aws_s3_mime import EXTENSION_TO_MIME
 
 # Mock
 PLATFROM = "news"
@@ -75,6 +75,7 @@ def test_naver_search_can_connect_to_aws():
     # when : request that trying to connect aws
     # then : task success
     data = {'lastBuildDate': 'Sun, 21 Jul 2024 21:14:41 +0900', 'total': 5414727, 'start': 1, 'display': 1, 'items': [{'title': '[단독]한전, 건설지역서 10년간 선심성 식사·<b>여행</b> 등에 25억 이상 썼다', 'originallink': 'https://www.khan.co.kr/economy/economy-general/article/202407211426001', 'link': 'https://n.news.naver.com/mnews/article/032/0003309729?sid=101', 'description': '대부분 주민에게 식사와 기념품, <b>여행</b>을 제공하는 데 사용됐다. 한 끼에 850만원이 넘는 금액이 결제되거나, 하루 견학에 쓰인 버스 임차비로 1300만원이 지출된 사례도 있었다. 견학에 참여했던 한 주민은 “스무 명... ', 'pubDate': 'Sun, 21 Jul 2024 14:27:00 +0900'}]}
+    json_data = json.dumps(data)
 
     s3 = boto3.client(
         "s3",
@@ -90,7 +91,7 @@ def test_naver_search_can_connect_to_aws():
     s3.put_object(
         Bucket=bucket_name, 
         Key=file_key, 
-        Body=json.dumps(data),
+        Body=json_data,
         ContentType='application/json'
     )
 
@@ -102,5 +103,4 @@ def test_naver_search_can_connect_to_aws():
     json_content = json.loads(content)
 
     assert json_content == data
-
 
