@@ -61,3 +61,36 @@ def test_naver_search_cannot_connect_client_with_invalid_secret_key():
         assert result["message"] == Naver.AuthError.value["message"]
         # assert result["log"]["errorMessage"] == 'NID AUTH Result Invalid (28) : Authentication failed. (인증에 실패했습니다.)'
         # assert result["log"]["errorCode"] == '024'
+
+
+def test_naver_search_can_connect_to_aws():
+    import os, json
+    from datetime import datetime
+    import boto3
+
+    # given : valid s3 client id, password
+    aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
+    aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
+
+    # when : request that trying to connect aws
+    # then : task success
+    client = NaverSearch(PLATFROM, RESPONSE_FORMAT)
+    result = client.request_with_keword(QUERY, DISPLAY, START, SORT)
+
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=aws_access_key_id, 
+        aws_secret_access_key=aws_secret_access_key
+    )
+    bucket_name = 'brickstudy'
+    file_destination='travel/bronze/naverAPI/blog/'
+    file_name=f'{PLATFROM}_{QUERY}_{datetime.today().strftime("%Y-%m-%d")}'
+ 
+    s3.put_object(
+        Bucket=bucket_name, 
+        Key=file_destination+file_name, 
+        Body=json.dumps(result),
+        ContentType='application/json'
+    )
+
+
