@@ -99,9 +99,8 @@ def test_s3_uploader_mime_get_right_content_type():
     extension = "json"
     # when : put_object()의 ContentType 옵션에 들어갈 파일 타입 받아오기
     # then : 알맞게 매핑된 ContentType
-    
-    content_type = EXTENSION_TO_MIME.get(extension) 
-    assert content_type == 'application/json'
+    obj = S3Uploader()
+    assert obj.get_mime_type(extension) == 'application/json'
 
 
 def test_s3_uploader_mime_get_incorrect_content_type():
@@ -110,5 +109,6 @@ def test_s3_uploader_mime_get_incorrect_content_type():
     # when : put_object()의 ContentType 옵션에 들어갈 파일 타입 받아오기
     # then : raise Value Error
     with pytest.raises(ValueError):
-        if extension not in EXTENSION_TO_MIME: 
-            raise ValueError("Unsupported file extension.")
+        obj = S3Uploader()
+        error = obj.get_mime_type(extension)
+        assert error['message'] == "Unsupported file extension."
