@@ -5,11 +5,12 @@ import boto3
 
 from src.common.aws_s3_mime import EXTENSION_TO_MIME
 
-
+#TODO s3 client object 생성자에서 받아서 초기화? is refactor needed?
 class S3Uploader:
     def __init__(self) -> None:
         self.aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
         self.aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
+        self.s3_client = None
 
     def write_s3(
             self,
@@ -19,13 +20,13 @@ class S3Uploader:
             data: Any
         )-> None:
 
-        s3 = boto3.client(
+        self.s3_client = boto3.client(
             "s3",
             aws_access_key_id=self.aws_access_key_id, 
-            aws_secret_access_key=self.ws_secret_access_key
+            aws_secret_access_key=self.aws_secret_access_key
         )
 
-        s3.put_object(
+        self.s3_client.put_object(
             Bucket=bucket_name, 
             Key=file_key, 
             Body=data,
