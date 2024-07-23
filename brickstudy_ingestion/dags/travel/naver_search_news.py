@@ -19,7 +19,7 @@ def request_naver_api():
     target_platform = "news"
     query = "여행"
     client = NaverSearch(target_platform)
-    result = client.request_with_keword(query)
+    result = client.request_with_keyword(query)
     print(result)
 
 

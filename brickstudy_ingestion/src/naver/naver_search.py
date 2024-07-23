@@ -3,6 +3,7 @@ import json
 from . import client_id, client_secret
 from src.common.errorcode import Naver
 from src.common.exception import ExtractError
+from src.common.s3_uploader import S3Uploader
 
 
 class NaverSearch:
@@ -22,7 +23,7 @@ class NaverSearch:
             "X-Naver-Client-Secret": client_secret
         }
 
-    def request_with_keword(
+    def request_with_keyword(
             self,
             query: str,         # 검색어. UTF-8로 인코딩되어야 합니다.
             display: int = 1,   # 한 번에 표시할 검색 결과 개수(기본값: 10, 최댓값: 100)

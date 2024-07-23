@@ -19,7 +19,7 @@ def test_nave_search_can_connect_client_with_valid():
 
     # when : Naver news api 요청
     client = NaverSearch(PLATFROM, RESPONSE_FORMAT)
-    result = client.request_with_keword(QUERY, DISPLAY, START, SORT)
+    result = client.request_with_keyword(QUERY, DISPLAY, START, SORT)
 
     # then : json 데이터 확인
     assert result["start"] == 1
@@ -41,7 +41,7 @@ def test_naver_search_cannot_connect_client_with_invalid_id():
     with pytest.raises(ExtractError):
         client = NaverSearch(PLATFROM, RESPONSE_FORMAT)
         client.headers["X-Naver-Client-Id"] = wrong_id
-        result = client.request_with_keword(QUERY, DISPLAY, START, SORT)
+        result = client.request_with_keyword(QUERY, DISPLAY, START, SORT)
 
         assert result["message"] == Naver.AuthError.value["message"]
         # assert result["log"]["errorMessage"] == 'NID AUTH Result Invalid (1000) : Authentication failed. (인증에 실패했습니다.)'
@@ -57,7 +57,7 @@ def test_naver_search_cannot_connect_client_with_invalid_secret_key():
     with pytest.raises(ExtractError):
         client = NaverSearch(PLATFROM, RESPONSE_FORMAT)
         client.headers["X-Naver-Client-Secret"] = wrong_secret
-        result = client.request_with_keword(QUERY, DISPLAY, START, SORT)
+        result = client.request_with_keyword(QUERY, DISPLAY, START, SORT)
 
         assert result["message"] == Naver.AuthError.value["message"]
         # assert result["log"]["errorMessage"] == 'NID AUTH Result Invalid (28) : Authentication failed. (인증에 실패했습니다.)'
