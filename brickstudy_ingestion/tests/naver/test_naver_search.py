@@ -63,6 +63,16 @@ def test_naver_search_cannot_connect_client_with_invalid_secret_key():
         # assert result["log"]["errorCode"] == '024'
 
 
+def test_naver_search_exceed_daily_request_quota():
+    # given : 네이버 api request 할당량 초과 or 1초에 너무 많은 request
+    # then : errorcode 429
+    with pytest.raises(ExtractError):
+        client = NaverSearch(PLATFROM, RESPONSE_FORMAT)
+        for _ in range(25000):
+            result = client.request_with_keyword(QUERY)
+        assert result["message"] == Naver.LimitExceedError.value["message"]
+
+
 def test_naver_search_can_connect_to_aws():
     import json
     from datetime import datetime
