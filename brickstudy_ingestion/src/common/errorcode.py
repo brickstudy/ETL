@@ -11,3 +11,8 @@ class Naver(Enum):
         "code": 401,
         "message": "확인되지 않은 오류입니다."
     }
+
+    LimitExceedError = {
+        "code": 429,
+        "message": "하루 요청 허용량을 초과했습니다."
+    }

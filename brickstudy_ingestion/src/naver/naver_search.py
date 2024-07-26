@@ -37,11 +37,14 @@ class NaverSearch:
             request = urllib.request.Request(url, headers=self.headers)
             response = urllib.request.urlopen(request)
             resCode = response.getcode()
-            if resCode == 401:
-                raise ExtractError(**Naver.AuthError.value,
-                                   log=response.json())
-            if resCode == 200:
-                return json.loads(response.read().decode('utf-8'))
+            result = json.loads(response.read().decode('utf-8'))
+
+            if resCode == 200: return result
+            else:
+                if resCode == 401: 
+                    raise ExtractError(**Naver.AuthError.value, log=result)
+                if resCode == 429:
+                    raise ExtractError(**Naver.LimitExceedError.value, log=result)
             
         except Exception as e:
             raise ExtractError(**Naver.UnknownError.value, log=str(e))
