@@ -2,7 +2,6 @@ import pytest
 from src.common.errorcode import Naver
 from src.common.exception import ExtractError
 from src.naver.naver_search import NaverSearch
-from src.common.aws_s3_mime import EXTENSION_TO_MIME
 from src.common.s3_uploader import S3Uploader
 
 # Mock
@@ -93,7 +92,7 @@ def test_naver_search_can_connect_to_aws():
 
     assert json_content == data
 
-#TODO s3_uploader, get_mimetype으로 대체
+
 def test_s3_uploader_mime_get_right_content_type():
     # given : 올바른 data type
     extension = "json"

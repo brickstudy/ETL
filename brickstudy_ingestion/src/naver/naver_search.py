@@ -3,7 +3,6 @@ import json
 from . import client_id, client_secret
 from src.common.errorcode import Naver
 from src.common.exception import ExtractError
-from src.common.s3_uploader import S3Uploader
 
 
 class NaverSearch:
