@@ -25,7 +25,7 @@ class NaverSearch:
     def request_with_keyword(
             self,
             query: str,         # 검색어. UTF-8로 인코딩되어야 합니다.
-            display: int = 1,   # 한 번에 표시할 검색 결과 개수(기본값: 10, 최댓값: 100)
+            display: int = 10,   # 한 번에 표시할 검색 결과 개수(기본값: 10, 최댓값: 100)
             start: int = 1,     # 검색 시작 위치(기본값: 1, 최댓값: 1000)
             sort: str = "sim"   # 검색 결과 정렬 방법 - sim: 정확도순으로 내림차순 정렬(기본값) - date: 날짜순으로 내림차순 정렬
     ) -> dict:
