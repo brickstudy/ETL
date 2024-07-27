@@ -4,9 +4,8 @@ from airflow.models import DAG
 from airflow.utils.dates import days_ago
 from airflow.operators.python import PythonOperator
 
-from src.common.s3_uploader import S3Uploader
 from src.naver.naver_search import NaverSearch
-
+from src.common.aws.s3_uploader import S3Uploader
 
 TARGET_PLATFORM = "news"
 QUERY = "여행"

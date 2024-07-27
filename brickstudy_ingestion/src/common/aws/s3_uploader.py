@@ -3,7 +3,7 @@ from typing import Any
 
 import boto3
 
-from src.common.aws_s3_mime import EXTENSION_TO_MIME
+from src.common.aws.s3_mime import EXTENSION_TO_MIME
 
 
 # TODO s3 client object 생성자에서 받아서 초기화? is refactor needed?

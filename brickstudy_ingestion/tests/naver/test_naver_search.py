@@ -2,7 +2,7 @@ import pytest
 from src.common.errorcode import Naver
 from src.common.exception import ExtractError
 from src.naver.naver_search import NaverSearch
-from src.common.s3_uploader import S3Uploader
+from src.common.aws.s3_uploader import S3Uploader
 
 # Mock
 PLATFROM = "news"
