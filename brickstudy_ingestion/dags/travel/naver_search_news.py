@@ -1,15 +1,17 @@
 from datetime import timedelta, datetime
+
 from airflow.models import DAG
 from airflow.utils.dates import days_ago
 from airflow.operators.python import PythonOperator
 
 from src.naver.naver_search import NaverSearch
-from src.common.s3_uploader import S3Uploader
+from src.common.aws.s3_uploader import S3Uploader
 
-TARGET_PLATFORM="news"
-QUERY="여행"
-BASE_PATH="travel/bronze/naverAPI/news"
-BUCKET_NAME="brickstudy"
+TARGET_PLATFORM = "news"
+QUERY = "여행"
+BASE_PATH = "travel/bronze/naverAPI/news"
+BUCKET_NAME = "brickstudy"
+
 
 # aiflow setting
 default_args = {
@@ -33,6 +35,7 @@ def request_naver_api():
             display=100
         )
 
+
 def upload_to_s3(data):
     timestamp = datetime.strftime(data["lastBuildDate"], "%a, %d %b %Y %H:%M:%S %z").timestamp()
     s3_uploader = S3Uploader()
@@ -40,8 +43,9 @@ def upload_to_s3(data):
         bucket_name=BUCKET_NAME,
         file_key=f"{BASE_PATH}/{timestamp}",
         data_type='json',
-        data = data["items"][0]
+        data=data["items"][0]
     )
+
 
 with DAG(
     dag_id='naver_search_api_news',

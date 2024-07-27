@@ -1,6 +1,6 @@
-import urllib.request
+import os
 import json
-from . import client_id, client_secret
+import urllib.request
 from src.common.errorcode import Naver
 from src.common.exception import ExtractError
 
@@ -18,8 +18,8 @@ class NaverSearch:
         """
         self.base_url = f"https://openapi.naver.com/v1/search/{target_platform}.{resp_format}?query="
         self.headers = {
-            "X-Naver-Client-Id": client_id,
-            "X-Naver-Client-Secret": client_secret
+            "X-Naver-Client-Id": os.getenv('NAVER_API_CLIENT_ID'),
+            "X-Naver-Client-Secret": os.getenv('NAVER_API_CLIENT_SECERT')
         }
 
     def request_with_keyword(
@@ -39,12 +39,14 @@ class NaverSearch:
             resCode = response.getcode()
             result = json.loads(response.read().decode('utf-8'))
 
-            if resCode == 200: return result
+            if resCode == 200:
+                return result
+            elif resCode == 401:
+                raise ExtractError(**Naver.AuthError.value, log=result)
+            elif resCode == 429:
+                raise ExtractError(**Naver.LimitExceedError.value, log=result)
             else:
-                if resCode == 401: 
-                    raise ExtractError(**Naver.AuthError.value, log=result)
-                if resCode == 429:
-                    raise ExtractError(**Naver.LimitExceedError.value, log=result)
-            
+                raise Exception
+
         except Exception as e:
             raise ExtractError(**Naver.UnknownError.value, log=str(e))
