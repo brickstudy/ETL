@@ -39,12 +39,14 @@ class NaverSearch:
             resCode = response.getcode()
             result = json.loads(response.read().decode('utf-8'))
 
-            if resCode == 200: return result
+            if resCode == 200:
+                return result
+            elif resCode == 401:
+                raise ExtractError(**Naver.AuthError.value, log=result)
+            elif resCode == 429:
+                raise ExtractError(**Naver.LimitExceedError.value, log=result)
             else:
-                if resCode == 401: 
-                    raise ExtractError(**Naver.AuthError.value, log=result)
-                if resCode == 429:
-                    raise ExtractError(**Naver.LimitExceedError.value, log=result)
-            
+                raise Exception
+
         except Exception as e:
             raise ExtractError(**Naver.UnknownError.value, log=str(e))

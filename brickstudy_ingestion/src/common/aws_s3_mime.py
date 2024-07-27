@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class MimeType(Enum):
     JSON = 'application/json'
     TEXT = 'text/plain'
@@ -10,6 +11,7 @@ class MimeType(Enum):
     PDF = 'application/pdf'
     OCTET_STREAM = 'application/octet-stream'
     ZIP = 'application/zip'
+
 
 EXTENSION_TO_MIME = {
     'json': MimeType.JSON.value,
