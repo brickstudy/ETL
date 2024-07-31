@@ -47,14 +47,14 @@ def test_naver_search_can_connect_to_aws(mock_session):
     id = datetime.today().strftime("%Y-%m-%d %H:%M:%S.%f")
     s3uploader.write_s3(
         bucket_name='testBucket',
-        file_key=f'travel/bronze/naverAPI/{PLATFROM}/{PLATFROM}_{QUERY}_{id}',
+        file_key=f'{PLATFROM}_{QUERY}_{id}',
         data_type='json',
         data=json_data
     )
 
     assert s3uploader.s3_client.head_object(
         Bucket='testBucket',
-        Key=f'travel/bronze/naverAPI/{PLATFROM}/{PLATFROM}_{QUERY}_{id}'
+        Key=f'{PLATFROM}_{QUERY}_{id}'
     )
 
 
