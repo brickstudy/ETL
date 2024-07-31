@@ -6,11 +6,13 @@ from airflow.operators.python import PythonOperator
 
 from src.naver.naver_search import NaverSearch
 from src.common.aws.s3_uploader import S3Uploader
+from dags.config import (
+    S3_BUCKET_NAME,
+    S3_BRONZE_BASE_PATH
+)
 
 TARGET_PLATFORM = "news"
 QUERY = "여행"
-BASE_PATH = "travel/bronze/naverAPI/news"
-BUCKET_NAME = "brickstudy"
 
 
 # aiflow setting
@@ -31,17 +33,17 @@ def fetch_and_store():
 def request_naver_api():
     client = NaverSearch(TARGET_PLATFORM)
     return client.request_with_keyword(
-            query=QUERY,
-            display=100
-        )
+        query=QUERY,
+        display=100
+    )
 
 
 def upload_to_s3(data):
     timestamp = datetime.strftime(data["lastBuildDate"], "%a, %d %b %Y %H:%M:%S %z").timestamp()
     s3_uploader = S3Uploader()
     s3_uploader.write_s3(
-        bucket_name=BUCKET_NAME,
-        file_key=f"{BASE_PATH}/{timestamp}",
+        bucket_name=S3_BUCKET_NAME,
+        file_key=f"{S3_BRONZE_BASE_PATH}/travel/naverapi/{TARGET_PLATFORM}/{timestamp}",
         data_type='json',
         data=data["items"][0]
     )
