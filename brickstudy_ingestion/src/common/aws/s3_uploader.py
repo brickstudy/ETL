@@ -1,4 +1,5 @@
 import os
+import json
 from typing import Any
 
 import boto3
@@ -28,7 +29,7 @@ class S3Uploader:
         self.s3_client.put_object(
             Bucket=bucket_name,
             Key=file_key,
-            Body=data,
+            Body=self.ensure_json_string(data),
             ContentType=self.get_mime_type(data_type)
         )
 
@@ -37,3 +38,13 @@ class S3Uploader:
         if extension not in EXTENSION_TO_MIME:
             raise ValueError("Unsupported file extension.")
         return EXTENSION_TO_MIME.get(extension)
+
+    @staticmethod
+    def ensure_json_string(data):
+        if isinstance(data, str):
+            try:
+                json.loads(data)
+                return data
+            except json.JSONDecodeError:
+                pass
+        return json.dumps(data)
