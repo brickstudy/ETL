@@ -26,7 +26,6 @@ def naver_api_client():
 
 def test_nave_search_can_connect_client_with_valid(naver_api_client):
     # given : 유효한 네이버 ID, SECRET KEY
-
     # when : Naver news api 요청
     result = naver_api_client.request_with_keyword(QUERY, DISPLAY, START, SORT)
 

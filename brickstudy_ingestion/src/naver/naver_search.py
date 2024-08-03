@@ -40,7 +40,7 @@ class NaverSearch:
             response = urllib.request.urlopen(request)
             return json.loads(response.read().decode('utf-8'))
 
-        except urllib.error.HTTPerror as e:
+        except urllib.error.HTTPError as e:
             if e.code == 401:
                 raise ExtractError(**Naver.AuthError.value, log=str(e))
             elif e.code == 429:

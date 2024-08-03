@@ -21,3 +21,8 @@ class Naver(Enum):
         "code": 000,
         "message": "URL 관련 오류입니다."
     }
+
+    UnknownError = {
+        "code": 000,
+        "message": "확인되지 않은 오류입니다."
+    }
