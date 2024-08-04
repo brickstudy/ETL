@@ -26,3 +26,15 @@ class Naver(Enum):
         "code": 000,
         "message": "확인되지 않은 오류입니다."
     }
+
+
+class NewsApi(Enum):
+    AuthError = {
+        "code": 401,
+        "message": "News api 토큰 정보를 확인하세요."
+    }
+
+    UnknownError = {
+        "code": 000,
+        "message": "확인되지 않은 오류입니다."
+    }
