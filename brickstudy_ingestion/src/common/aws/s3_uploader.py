@@ -1,4 +1,5 @@
 import os
+import json
 from typing import Any
 
 import boto3
@@ -6,12 +7,16 @@ import boto3
 from src.common.aws.s3_mime import EXTENSION_TO_MIME
 
 
-# TODO s3 client object 생성자에서 받아서 초기화? is refactor needed?
 class S3Uploader:
-    def __init__(self) -> None:
-        self.aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
-        self.aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
-        self.s3_client = None
+    def __init__(self, client=None) -> None:
+        if client:
+            self.s3_client = client
+        else:
+            self.s3_client = boto3.client(
+                "s3",
+                aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
+                aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
+            )
 
     def write_s3(
             self,
@@ -21,16 +26,10 @@ class S3Uploader:
             data: Any
     ) -> None:
 
-        self.s3_client = boto3.client(
-            "s3",
-            aws_access_key_id=self.aws_access_key_id,
-            aws_secret_access_key=self.aws_secret_access_key
-        )
-
         self.s3_client.put_object(
             Bucket=bucket_name,
             Key=file_key,
-            Body=data,
+            Body=self.ensure_json_string(data),
             ContentType=self.get_mime_type(data_type)
         )
 
@@ -39,3 +38,13 @@ class S3Uploader:
         if extension not in EXTENSION_TO_MIME:
             raise ValueError("Unsupported file extension.")
         return EXTENSION_TO_MIME.get(extension)
+
+    @staticmethod
+    def ensure_json_string(data):
+        if isinstance(data, str):
+            try:
+                json.loads(data)
+                return data
+            except json.JSONDecodeError:
+                pass
+        return json.dumps(data)

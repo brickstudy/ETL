@@ -1,6 +1,6 @@
-import os
 import json
 import urllib.request
+
 from src.common.errorcode import Naver
 from src.common.exception import ExtractError
 
@@ -8,6 +8,8 @@ from src.common.exception import ExtractError
 class NaverSearch:
     def __init__(
             self,
+            client_id: str,
+            client_secret: str,
             target_platform: str,
             resp_format: str = "json"
     ) -> None:
@@ -18,8 +20,8 @@ class NaverSearch:
         """
         self.base_url = f"https://openapi.naver.com/v1/search/{target_platform}.{resp_format}?query="
         self.headers = {
-            "X-Naver-Client-Id": os.getenv('NAVER_API_CLIENT_ID'),
-            "X-Naver-Client-Secret": os.getenv('NAVER_API_CLIENT_SECERT')
+            "X-Naver-Client-Id": client_id,
+            "X-Naver-Client-Secret": client_secret
         }
 
     def request_with_keyword(
@@ -36,17 +38,16 @@ class NaverSearch:
 
             request = urllib.request.Request(url, headers=self.headers)
             response = urllib.request.urlopen(request)
-            resCode = response.getcode()
-            result = json.loads(response.read().decode('utf-8'))
+            return json.loads(response.read().decode('utf-8'))
 
-            if resCode == 200:
-                return result
-            elif resCode == 401:
-                raise ExtractError(**Naver.AuthError.value, log=result)
-            elif resCode == 429:
-                raise ExtractError(**Naver.LimitExceedError.value, log=result)
+        except urllib.error.HTTPError as e:
+            if e.code == 401:
+                raise ExtractError(**Naver.AuthError.value, log=str(e))
+            elif e.code == 429:
+                raise ExtractError(**Naver.LimitExceedError.value, log=str(e))
             else:
-                raise Exception
-
+                raise ExtractError(**Naver.HTTPUnknownError.value, log=str(e))
+        except urllib.error.URLError as e:
+            raise ExtractError(**Naver.UrlError.value, log=str(e))
         except Exception as e:
             raise ExtractError(**Naver.UnknownError.value, log=str(e))
