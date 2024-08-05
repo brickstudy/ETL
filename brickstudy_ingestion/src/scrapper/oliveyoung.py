@@ -86,3 +86,21 @@ def get_brand_shop_url(brand_metadata: dict) -> dict:
                 finally:
                     continue
     return brand_metadata
+
+
+def get_items(brand_metadata: dict) -> dict:
+    """
+    각 브랜드의 제품 리스트, 해당 제품의 프로모션 여부 추가
+    | return | {'brand_name': OliveyoungBrand_object} 구조 해시맵
+    """
+    for brand in brand_metadata.keys():
+        brand_url = brand_metadata[brand].brand_shop_detail_url
+        brand_url_soup = get_soup(brand_url)
+
+        item_dic = {}
+        for div in brand_url_soup.find_all('div', class_='prod-info'):
+            item_name = div.find('a').get('data-attr')
+            is_in_promotion = div.find('div', class_="discount") is not None
+            item_dic[item_name] = is_in_promotion
+        brand_metadata[brand].items = item_dic
+    return brand_metadata
