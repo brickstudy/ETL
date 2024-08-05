@@ -1,6 +1,7 @@
 from src.scrapper.oliveyoung import (
     get_oliveyoung_category_urls,
-    get_brand_in_each_category
+    get_brand_in_each_category,
+    generate_query_keyword
 )
 import pytest
 
@@ -22,14 +23,7 @@ def test_get_brand_in_each_category():
 
 
 def test_generate_query_keyword():
-    import googletrans
-
     brand_dict = get_brand_in_each_category(category_url)
-    translator = googletrans.Translator()
-    translator.raise_Exception = True
-
-    for brand in brand_dict.keys():
-        eng_brand = translator.translate(brand, dest="en", src='auto').text
-        brand_dict[brand].query_keyword = [brand, eng_brand]
+    brand_dict = generate_query_keyword(brand_dict)
 
     assert brand_dict is not None

@@ -43,3 +43,16 @@ def get_brand_in_each_category(category_urls: list) -> dict:
         for brand in brand_names:
             brand_metadata[brand].category.append(cat_name)
     return brand_metadata
+
+
+def generate_query_keyword(brand_metadata: dict) -> dict:
+    import googletrans
+
+    translator = googletrans.Translator()
+    translator.raise_Exception = True
+
+    for brand in brand_metadata.keys():
+        eng_brand = translator.translate(brand, dest="en", src='auto').text
+        brand_metadata[brand].query_keyword = [brand, eng_brand]
+
+    return brand_metadata
