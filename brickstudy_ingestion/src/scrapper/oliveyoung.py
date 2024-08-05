@@ -56,3 +56,24 @@ def generate_query_keyword(brand_metadata: dict) -> dict:
         brand_metadata[brand].query_keyword = [brand, eng_brand]
 
     return brand_metadata
+
+
+def get_brand_shop_url(brand_metadata: dict) -> dict:
+    total_brand_list_soup = get_soup("https://www.oliveyoung.co.kr/store/main/getBrandList.do")
+    brand_base_url = "https://www.oliveyoung.co.kr/store/display/getBrandShopDetail.do?onlBrndCd="
+    code_name = {}
+
+    for a_tag in total_brand_list_soup.find_all('a'):
+        brand_code = a_tag.get('data-ref-onlbrndcd')
+        if brand_code:
+            brand_name = a_tag.text
+            if brand_name in brand_metadata.keys():  # Kor brand name
+                brand_metadata[brand_name].brand_shop_detail_url = brand_base_url + brand_code
+                code_name[brand_code] = brand_name
+            else:                                # Eng brand name
+                try:
+                    kor_brand_name = code_name[brand_code]
+                    brand_metadata[kor_brand_name].query_keyword.append(brand_name)
+                finally:
+                    continue
+    return brand_metadata
