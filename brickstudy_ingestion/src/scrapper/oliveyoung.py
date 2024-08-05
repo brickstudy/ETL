@@ -35,7 +35,7 @@ class Brand:
                 category_urls.append((data_attr, data_ref_dispcatno))
         return category_urls
 
-    def _get_brand_in_each_category(self, category_urls: list) -> dict:
+    def _get_brand_in_each_category(self, category_urls: list) -> None:
         """
         파싱한 dispCatNo 기준으로 url 접근해서 해당 카테고리 내 브랜드 정보 파싱
         """
@@ -53,7 +53,6 @@ class Brand:
             brand_names = [input_tag.get('data-brndnm') for input_tag in input_tags]
             for brand in brand_names:
                 self.brand_metadata[brand].category.append(cat_name)
-        return self.brand_metadata
 
     def _generate_query_keyword(self) -> None:
         """
@@ -67,8 +66,6 @@ class Brand:
         for brand in self.brand_metadata.keys():
             eng_brand = translator.translate(brand, dest="en", src='auto').text
             self.brand_metadata[brand].query_keyword = [brand, eng_brand]
-
-        return self.brand_metadata
 
     def _get_brand_shop_url(self) -> None:
         """
@@ -92,7 +89,6 @@ class Brand:
                         self.brand_metadata[kor_brand_name].query_keyword.append(brand_name)
                     finally:
                         continue
-        return self.brand_metadata
 
     def _get_items(self) -> None:
         """
@@ -108,4 +104,3 @@ class Brand:
                 is_in_promotion = div.find('div', class_="discount") is not None
                 item_dic[item_name] = is_in_promotion
             self.brand_metadata[brand].items = item_dic
-        return self.brand_metadata
