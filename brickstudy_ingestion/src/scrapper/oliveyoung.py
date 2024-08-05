@@ -22,7 +22,7 @@ def get_oliveyoung_category_urls() -> list:
 def get_brand_in_each_category(category_urls: list) -> dict:
     """
     파싱한 dispCatNo 기준으로 url 접근해서 해당 카테고리 내 브랜드 정보 파싱
-    | return | {brand_name: [tags]} 꼴 해시맵
+    | return | {'brand_name': OliveyoungBrand_object} 구조 해시맵
     """
     from collections import defaultdict
     from src.scrapper.models import brand_generator
@@ -46,6 +46,10 @@ def get_brand_in_each_category(category_urls: list) -> dict:
 
 
 def generate_query_keyword(brand_metadata: dict) -> dict:
+    """
+    구글번역 라이브러리 사용하여 브랜드 이름 영문으로 번역하여 query_keyword 추가
+    | return | {'brand_name': OliveyoungBrand_object} 구조 해시맵
+    """
     import googletrans
 
     translator = googletrans.Translator()
@@ -59,6 +63,11 @@ def generate_query_keyword(brand_metadata: dict) -> dict:
 
 
 def get_brand_shop_url(brand_metadata: dict) -> dict:
+    """
+    각 브랜드의 올리브영 브랜드페이지 url 추가
+    query_keyword에 올리브영에서 태깅한 영문 변환 브랜드명 추가
+    | return | {'brand_name': OliveyoungBrand_object} 구조 해시맵
+    """
     total_brand_list_soup = get_soup("https://www.oliveyoung.co.kr/store/main/getBrandList.do")
     brand_base_url = "https://www.oliveyoung.co.kr/store/display/getBrandShopDetail.do?onlBrndCd="
     code_name = {}
