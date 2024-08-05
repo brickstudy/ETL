@@ -6,7 +6,7 @@ def get_oliveyoung_category_urls() -> list:
     올리브영 랜딩페이지의 카테고리레이어 에서 각 카테고리의 dispCatNo 값 파싱
     | return | (category 이름, url id) 를 원소로 갖는 리스트
     """
-    url = 'https://www.oliveyoung.co.kr/store/main/main.do?oy=0&t_page=%EC%8A%A4%ED%82%A8%EC%BC%80%EC%96%B4%20&gt;%20%EC%97%90%EC%84%BC%EC%8A%A4/%EC%84%B8%EB%9F%BC/%EC%95%B0%ED%94%8C&t_click=%ED%97%A4%EB%8D%94&t_header_type=%EB%A1%9C%EA%B3%A0'
+    url = 'https://www.oliveyoung.co.kr/store/main/main.do'
     soup = get_soup(url)
 
     category_urls = []
