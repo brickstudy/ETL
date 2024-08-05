@@ -25,20 +25,21 @@ def get_brand_in_each_category(category_urls: list) -> dict:
     | return | {brand_name: [tags]} 꼴 해시맵
     """
     from collections import defaultdict
+    from src.scrapper.models import brand_generator
 
     base_url = 'https://www.oliveyoung.co.kr/store/display/getMCategoryList.do?dispCatNo='
-    brand_metadata = defaultdict(list)
+    brand_metadata = defaultdict(brand_generator)
 
     for category_name, category_id in category_urls:
         if category_name is None:
             continue
 
-        category = category_name.split('^')[-1]  # 공통^드로우^향수/디퓨저_여성향수
+        cat_name = category_name.split('^')[-1]  # 공통^드로우^향수/디퓨저_여성향수
         soup = get_soup(base_url + category_id)
         # 모든 input 태그 찾기
         input_tags = soup.find_all('input', {'type': 'checkbox'})
         # data-brndnm 속성값 추출
         brand_names = [input_tag.get('data-brndnm') for input_tag in input_tags]
         for brand in brand_names:
-            brand_metadata[brand].append(category)
+            brand_metadata[brand].category.append(cat_name)
     return brand_metadata
