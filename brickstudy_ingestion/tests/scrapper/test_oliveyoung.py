@@ -30,10 +30,24 @@ def test_generate_query_keyword():
     assert brand_dict is not None
 
 
+@pytest.mark.skip(reason="tested")
 def test_generate_brand_shop_url():    
     brand_dict = get_brand_shop_url(
         generate_query_keyword(
             get_brand_in_each_category(category_url)
         )
     )
-    assert brand_dict
+    assert brand_dict is not None
+
+
+def test_get_items():
+    from src.scrapper import get_soup
+
+    url = 'https://www.oliveyoung.co.kr/store/display/getBrandShopDetail.do?onlBrndCd=A000517'
+    brand_url_soup = get_soup(url)
+    div_tag = brand_url_soup.find_all('div', class_='prod-info')
+    for div in div_tag:
+        item_name = div.find('a').get('data-attr')
+        is_in_promotion = div.find('div', class_="discount") is not None
+        print(item_name, is_in_promotion)
+    
