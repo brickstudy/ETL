@@ -5,8 +5,11 @@ from src.scrapper.models import brand_generator
 
 
 class Brand:
-    def __init__(self) -> None:
-        self.brand_metadata = defaultdict(brand_generator)
+    def __init__(self, brand_metadata=None) -> None:
+        if brand_metadata:
+            self.brand_metadata = brand_metadata
+        else:
+            self.brand_metadata = defaultdict(brand_generator)
 
     def crawl_brand_metadata(self):
         self._get_brand_in_each_category(
@@ -33,7 +36,8 @@ class Brand:
             if href and "javascript:common.link.moveCategory" in href:
                 data_attr = a_tag.get('data-attr')
                 data_ref_dispcatno = a_tag.get('data-ref-dispcatno')
-                category_urls.append((data_attr, data_ref_dispcatno))
+                if data_attr is not None and data_ref_dispcatno is not None:
+                    category_urls.append((data_attr, data_ref_dispcatno))
         return category_urls
 
     def _get_brand_in_each_category(self, category_urls: list) -> None:
@@ -43,9 +47,6 @@ class Brand:
         base_url = 'https://www.oliveyoung.co.kr/store/display/getMCategoryList.do?dispCatNo='
 
         for category_name, category_id in category_urls:
-            if category_name is None:
-                continue
-
             cat_name = category_name.split('^')[-1]  # 공통^드로우^향수/디퓨저_여성향수
             soup = get_soup(base_url + category_id)
             # 모든 input 태그 찾기
@@ -98,6 +99,8 @@ class Brand:
         for brand in self.brand_metadata.keys():
             brand_url = self.brand_metadata[brand].brand_shop_detail_url
             brand_url_soup = get_soup(brand_url)
+            if brand_url_soup is None:
+                continue
 
             item_dic = {}
             for div in brand_url_soup.find_all('div', class_='prod-info'):
