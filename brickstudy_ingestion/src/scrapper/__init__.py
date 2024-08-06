@@ -1,3 +1,4 @@
+import urllib
 from urllib.request import urlopen
 from urllib.error import HTTPError, URLError
 from bs4 import BeautifulSoup
@@ -13,16 +14,26 @@ def get_soup(url: str = None):
     headers = {'User-Agent': user_agent}
 
     try:
-        page = urlopen(url, headers=headers)
+        req = urllib.request.Request(url, headers=headers)
+        page = urlopen(req)
         html = page.read().decode("utf-8")
         soup = BeautifulSoup(html, "html.parser")
     except (HTTPError, URLError) as e:
-        ExtractError(
+        err = ExtractError(
             code=000,
-            message=f"**{url}** open error",
+            message=f"**{url}** HTTPError/URLError. Sleep 5 and continue.",
             log=e
         )
-        time.sleep(5)
+        time.sleep(5)  # TODO 이 경우 해당 url에 대해 재실행 필요
+    except (ValueError) as e:
+        err = ExtractError(
+            code=000,
+            message=f"**{url}** ValueError. Ignore this url parameter.",
+            log=e
+        )
+        print(err)
+        soup = None  # TODO 해당 url 무시
     else:
-        time.sleep(random.randrange(0, 3))
+        time.sleep(random.random())
+    finally:
         return soup
