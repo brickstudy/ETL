@@ -3,12 +3,6 @@ from datetime import datetime
 from airflow import DAG
 from airflow.operators.python import PythonVirtualenvOperator
 
-from src.scrapper.oliveyoung import Brand
-from src.scrapper.utils import (
-    # dict_partitioner,
-    write_local_as_json,
-)
-
 
 DAG_ID = "bronze_viral_oliveyoung"
 
@@ -21,27 +15,23 @@ default_args = {
 def entrypoint():
     import logging
     import multiprocess
-    import uuid
     from src.scrapper.oliveyoung import Brand
-    from src.scrapper.utils import dict_partitioner, write_local_as_json
+    from src.scrapper.utils import dict_partitioner, write_local_as_json, read_local_as_dict
 
     CONCURRENCY_LEVEL = multiprocess.cpu_count()
 
-    def get_item(data: dict):
-        brand = Brand(data)
+    def get_item(data: tuple):
+        brand = Brand({data[0]: data[1]})
         brand.crawl_items()
-        file_name = 'brand_item_data_' + str(uuid.uuid4())
+        file_name = 'brand_item_data_' + data[0]
         write_local_as_json(data=brand.brand_metadata, file_name=file_name)
 
     try:
         brand = Brand()
         brand.crawl_brand_metadata()
-        partitioned_data = dict_partitioner(
-            data=brand.brand_metadata,
-            level=CONCURRENCY_LEVEL
-        )
-        with multiprocess.Pool(CONCURRENCY_LEVEL) as p:
-            p.map(get_item, list(partitioned_data.items()))
+        for partitioned_data in dict_partitioner(data=brand.brand_metadata, level=1):
+            with multiprocess.Pool(CONCURRENCY_LEVEL) as p:
+                p.map(get_item, list(partitioned_data.items()))
     except Exception as e:
         logging.error("***entrypoint error***", e)
         raise

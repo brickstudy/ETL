@@ -8,7 +8,7 @@ def dict_partitioner(data: dict, level: int):
     for i in range(level):
         end = start + partition_n + (1 if i < partition_remain else 0)
         part = {key: data[key] for key in brand_lst[start:end]}
-        yield part  
+        yield part
         start = end
 
 
