@@ -23,8 +23,9 @@ class Brand:
         올리브영 랜딩페이지의 카테고리레이어 에서 각 카테고리의 dispCatNo 값 파싱
         | return | (category 이름, url id) 를 원소로 갖는 리스트
         """
-        url = 'https://www.oliveyoung.co.kr/store/main/main.do'
+        url = 'https://www.oliveyoung.co.kr/store/display/getCategoryShop.do?dispCatNo=10000010002&gateCd=Drawer&t_page=%EB%93%9C%EB%A1%9C%EC%9A%B0_%EC%B9%B4%ED%85%8C%EA%B3%A0%EB%A6%AC&t_click=%EC%B9%B4%ED%85%8C%EA%B3%A0%EB%A6%AC%ED%83%AD_%EB%8C%80%EC%B9%B4%ED%85%8C%EA%B3%A0%EB%A6%AC&t_1st_category_type=%EB%8C%80_%EB%A9%94%EC%9D%B4%ED%81%AC%EC%97%85'
         soup = get_soup(url)
+        assert soup is not None
 
         category_urls = []
         for a_tag in soup.find_all('a'):
