@@ -6,9 +6,9 @@ from airflow.operators.python import PythonOperator
 
 from dags.utils.utils import request_naver_api, upload_to_s3
 
-DAG_ID = 'bronze_travel_naverapi'
-TARGET_PLATFORM = "news"
-QUERY = "여행"
+DAG_ID = "bronze_travel_naverapi"
+TARGET_PLATFORM = 'news'
+QUERY = '여행'
 
 
 # aiflow setting
@@ -23,7 +23,7 @@ default_args = {
 # task setting
 def fetch_and_store():
     data = request_naver_api()
-    file_s3_path = f"{DAG_ID.replace('_', '/')}/{TARGET_PLATFORM}_{data["lastBuildDate"]}"
+    file_s3_path = f"{DAG_ID.replace('_', '/')}/{TARGET_PLATFORM}_{data['lastBuildDate']}"
     upload_to_s3(file_key=file_s3_path, data=data["items"][0])
 
 
