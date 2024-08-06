@@ -1,9 +1,10 @@
 from datetime import datetime
 import multiprocessing
 import uuid
+import logging
 
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.operators.python import PythonVirtualenvOperator
 
 from src.scrapper.oliveyoung import Brand
 from src.scrapper.utils import (
@@ -22,14 +23,19 @@ default_args = {
 
 
 def entrypoint():
-    brand = Brand()
-    brand.crawl_brand_metadata()
-    for partitioned_data in dict_partitioner(
-        data=brand.brand_metadata,
-        level=CONCURRENCY_LEVEL
-    ):
-        with multiprocessing.Pool(CONCURRENCY_LEVEL) as p:
-            p.map(get_item, partitioned_data)
+    try:
+        brand = Brand()
+        brand.crawl_brand_metadata()
+        partitioned_data = dict_partitioner(
+            data=brand.brand_metadata,
+            level=CONCURRENCY_LEVEL
+        )
+        # with multiprocessing.Pool(CONCURRENCY_LEVEL) as p:
+        #     p.map(get_item, partitioned_data)
+        get_item(partitioned_data)
+    except Exception as e:
+        logging.error("***entrypoint error***", e)
+        raise
 
 
 def get_item(data: dict):
@@ -45,8 +51,11 @@ with DAG(
     schedule_interval='@daily'
 ):
 
-    task1 = PythonOperator(
+    task1 = PythonVirtualenvOperator(
         task_id='get_brand_metadata',
+        python_version='3.8',
+        system_site_packages=False,
+        requirements=["beautifulsoup4==4.9.3"],
         python_callable=entrypoint
     )
 
