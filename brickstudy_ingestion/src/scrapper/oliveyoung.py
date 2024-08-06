@@ -6,7 +6,7 @@ from src.scrapper.models import brand_generator
 
 class Brand:
     def __init__(self) -> None:
-        self.self.brand_metadata = defaultdict(brand_generator)
+        self.brand_metadata = defaultdict(brand_generator)
 
     def crawl_brand_metadata(self):
         self._get_brand_in_each_category(
