@@ -1,40 +1,28 @@
-from src.scrapper.oliveyoung import (
-    get_oliveyoung_category_urls,
-    get_brand_in_each_category,
-    generate_query_keyword,
-    get_brand_shop_url,
-)
-import pytest
+from src.scrapper.oliveyoung import Brand
 
 
-category_url = [('공통^드로우^스킨케어_스킨/토너', '100000100010013')]
+brand_obj = Brand()
+test_category_url = [('공통^드로우^스킨케어_스킨/토너', '100000100010013')]
+test_brand = '구달'
 
 
-@pytest.mark.skip(reason="tested")
 def test_get_oliveyoung_category_urls():
     # category_urls 받아오기
-    category_urls = get_oliveyoung_category_urls()
-    assert category_urls is not None
+    category_urls = brand_obj._get_oliveyoung_category_urls()
+    assert len(category_urls)
 
 
-@pytest.mark.skip(reason="tested")
 def test_get_brand_in_each_category():
-    brand_info = get_brand_in_each_category(category_url)
-    assert brand_info is not None
+    brand_obj._get_brand_in_each_category(test_category_url)
+    res = brand_obj.brand_metadata[test_brand].category
+    print(res)
+    assert len(res)
 
 
-@pytest.mark.skip(reason="tested")
-def test_generate_query_keyword():
-    brand_dict = get_brand_in_each_category(category_url)
-    brand_dict = generate_query_keyword(brand_dict)
-    assert brand_dict is not None
-
-
-@pytest.mark.skip(reason="tested")
 def test_generate_brand_shop_url():    
-    brand_dict = get_brand_shop_url(
-        generate_query_keyword(
-            get_brand_in_each_category(category_url)
-        )
-    )
-    assert brand_dict is not None
+    brand_obj._get_brand_shop_url()
+    res1 = brand_obj.brand_metadata[test_brand].query_keyword
+    res2 = brand_obj.brand_metadata[test_brand].brand_shop_detail_url
+    assert len(res1)
+    assert res2
+
