@@ -27,7 +27,6 @@ def fetch_and_store():
     upload_to_s3(file_key=file_s3_path, data=data["items"][0])
 
 
-
 with DAG(
     dag_id=DAG_ID,
     default_args=default_args,
