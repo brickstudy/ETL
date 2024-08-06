@@ -35,5 +35,4 @@ def get_soup(url: str = None):
         soup = None  # TODO 해당 url 무시
     else:
         time.sleep(random.random())
-    finally:
         return soup

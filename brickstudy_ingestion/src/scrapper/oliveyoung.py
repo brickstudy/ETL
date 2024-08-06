@@ -89,8 +89,8 @@ class Brand:
                     try:
                         kor_brand_name = code_name[brand_code]
                         self.brand_metadata[kor_brand_name].query_keyword.append(brand_name)
-                    finally:
-                        continue
+                    except Exception:
+                        pass
 
     def _get_items(self) -> None:
         """
@@ -101,7 +101,6 @@ class Brand:
             brand_url_soup = get_soup(brand_url)
             if brand_url_soup is None:
                 continue
-
             item_dic = {}
             for div in brand_url_soup.find_all('div', class_='prod-info'):
                 item_name = div.find('a').get('data-attr')
