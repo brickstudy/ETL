@@ -1,5 +1,7 @@
+import os
 import json
-import urllib.request
+import requests
+import urllib.parse
 
 from src.common.errorcode import Naver
 from src.common.exception import ExtractError
@@ -8,8 +10,6 @@ from src.common.exception import ExtractError
 class NaverSearch:
     def __init__(
             self,
-            client_id: str,
-            client_secret: str,
             target_platform: str,
             resp_format: str = "json"
     ) -> None:
@@ -20,8 +20,8 @@ class NaverSearch:
         """
         self.base_url = f"https://openapi.naver.com/v1/search/{target_platform}.{resp_format}?query="
         self.headers = {
-            "X-Naver-Client-Id": client_id,
-            "X-Naver-Client-Secret": client_secret
+            "X-Naver-Client-Id": os.getenv('NAVER_API_CLIENT_ID'),
+            "X-Naver-Client-Secret": os.getenv('NAVER_API_CLIENT_SECERT')
         }
 
     def request_with_keyword(
@@ -32,22 +32,18 @@ class NaverSearch:
             sort: str = "sim"   # 검색 결과 정렬 방법 - sim: 정확도순으로 내림차순 정렬(기본값) - date: 날짜순으로 내림차순 정렬
     ) -> dict:
         try:
-            encQuery = urllib.parse.quote(query)
+            encoded_query = urllib.parse.quote(query)
+
             sub_url = f"&display={str(display)}&start={str(start)}&sort={sort}"
-            url = self.base_url + encQuery + sub_url
+            url = self.base_url + encoded_query + sub_url
+            response = requests.get(url, headers=self.headers)
+            content = response.json()
 
-            request = urllib.request.Request(url, headers=self.headers)
-            response = urllib.request.urlopen(request)
-            return json.loads(response.read().decode('utf-8'))
+            if response.status_code == 401:
+                raise ExtractError(**Naver.AuthError.value, log=str(content))
+            elif response.status_code == 429:
+                raise ExtractError(**Naver.LimitExceedError.value, log=str(content))
+            return json.dumps(content, ensure_ascii=False)
 
-        except urllib.error.HTTPError as e:
-            if e.code == 401:
-                raise ExtractError(**Naver.AuthError.value, log=str(e))
-            elif e.code == 429:
-                raise ExtractError(**Naver.LimitExceedError.value, log=str(e))
-            else:
-                raise ExtractError(**Naver.HTTPUnknownError.value, log=str(e))
-        except urllib.error.URLError as e:
-            raise ExtractError(**Naver.UrlError.value, log=str(e))
         except Exception as e:
             raise ExtractError(**Naver.UnknownError.value, log=str(e))

@@ -1,16 +1,18 @@
 from datetime import timedelta, datetime
 
+
 from airflow.models import DAG
 from airflow.utils.dates import days_ago
 from airflow.operators.python import PythonOperator
 
-from src.naver.naver_search import NaverSearch
+from src.newsapi.top_headlines import TopHeadline
 from src.common.aws.s3_uploader import S3Uploader
 
 
-DAG_ID = "bronze_travel_naversearch"
-TARGET_PLATFORM = 'news'
-QUERY = '여행'
+DAG_ID = 'bronze_travel_newsapi'
+TARGET_PLATFORM = "headline"
+COUNTRY = "kr"
+CATEGORY = "general"
 
 
 # aiflow setting
@@ -24,18 +26,13 @@ default_args = {
 
 # task setting
 def fetch_and_store():
-    data = request_naver_api()
+    data = request_news_api()
     upload_to_s3(data)
 
 
-def request_naver_api():
-    client = NaverSearch(
-        target_platform=TARGET_PLATFORM
-    )
-    return client.request_with_keyword(
-        query=QUERY,
-        display=100
-    )
+def request_news_api():
+    client = TopHeadline(COUNTRY, CATEGORY)
+    return client.request_with_country_category()
 
 
 def upload_to_s3(data):
@@ -51,11 +48,11 @@ def upload_to_s3(data):
 with DAG(
     dag_id=DAG_ID,
     default_args=default_args,
-    description='sample dag for fetching data from naver news via NaverAPI',
+    description='sample dag for fetching data from kr headline from newsapi',
     schedule_interval='@daily',
 ):
     extract_task = PythonOperator(
-        task_id="request_naver_api",
+        task_id="request_news_api",
         python_callable=fetch_and_store
     )
 

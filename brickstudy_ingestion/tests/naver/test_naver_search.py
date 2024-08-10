@@ -1,8 +1,7 @@
+import json
 import pytest
-import os
-from src.common.errorcode import Naver
-from src.common.exception import ExtractError
 from src.naver.naver_search import NaverSearch
+from src.common.exception import ExtractError
 
 
 # Mock
@@ -17,8 +16,6 @@ SORT = "sim"    # 검색 결과 정렬 방법 - sim: 정확도순으로 내림�
 @pytest.fixture
 def naver_api_client():
     return NaverSearch(
-        client_id=os.getenv('NAVER_API_CLIENT_ID'),
-        client_secret=os.getenv('NAVER_API_CLIENT_SECERT'),
         target_platform=PLATFROM,
         resp_format=RESPONSE_FORMAT
     )
@@ -28,6 +25,7 @@ def test_nave_search_can_connect_client_with_valid(naver_api_client):
     # given : 유효한 네이버 ID, SECRET KEY
     # when : Naver news api 요청
     result = naver_api_client.request_with_keyword(QUERY, DISPLAY, START, SORT)
+    result = json.loads(result)
 
     # then : json 데이터 확인
     assert result["start"] == 1
