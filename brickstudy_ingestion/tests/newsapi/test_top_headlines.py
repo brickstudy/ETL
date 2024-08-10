@@ -1,4 +1,5 @@
 import pytest
+import json
 
 from src.newsapi.top_headlines import TopHeadline
 from src.common.exception import ExtractError
@@ -13,6 +14,7 @@ def test_can_request_new_contents():
     # given : 유효한 key
     # when : api 요청
     result = TopHeadline(COUNTRY, CATEGORY).request_with_country_category()
+    result = json.loads(result)
     # 20개씩만 수집 가능
 
     # then : 응답 확인
