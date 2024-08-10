@@ -1,4 +1,3 @@
-import boto3
 from datetime import timedelta, datetime
 
 
@@ -8,11 +7,7 @@ from airflow.operators.python import PythonOperator
 
 from src.newsapi.top_headlines import TopHeadline
 from src.common.aws.s3_uploader import S3Uploader
-from dags.config import (
-    AWS_ACCESS_KEY_ID,
-    AWS_SECRET_ACCESS_KEY,
-    S3_BUCKET_NAME
-)
+
 
 DAG_ID = 'bronze_travel_newsapi'
 TARGET_PLATFORM = "headline"
@@ -42,14 +37,8 @@ def request_news_api():
 
 def upload_to_s3(data):
     timestamp = datetime.now().strftime("%Y-%m-%d")
-    s3_client = boto3.client(
-        "s3",
-        aws_access_key_id=AWS_ACCESS_KEY_ID,
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY
-    )
-    s3_uploader = S3Uploader(s3_client)
+    s3_uploader = S3Uploader()
     s3_uploader.write_s3(
-        bucket_name=S3_BUCKET_NAME,
         file_key=f"{DAG_ID.replace('_', '/')}/{timestamp}/{TARGET_PLATFORM}",
         data_type='json',
         data=data

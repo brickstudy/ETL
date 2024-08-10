@@ -8,11 +8,8 @@ from src.common.aws.s3_mime import EXTENSION_TO_MIME
 
 
 class S3Uploader:
-    def __init__(self, client=None) -> None:
-        if client:
-            self.s3_client = client
-        else:
-            self.s3_client = boto3.client(
+    def __init__(self) -> None:
+        self.s3_client = boto3.client(
                 "s3",
                 aws_access_key_id=os.getenv('AWS_ACCESS_KEY_ID'),
                 aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
@@ -20,10 +17,10 @@ class S3Uploader:
 
     def write_s3(
             self,
-            bucket_name: str,
             file_key: str,
             data_type: str,
-            data: Any
+            data: Any,
+            bucket_name: str = "brickstudy",
     ) -> None:
 
         self.s3_client.put_object(

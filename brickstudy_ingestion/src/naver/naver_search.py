@@ -1,3 +1,4 @@
+import os
 import json
 import urllib.request
 
@@ -8,8 +9,6 @@ from src.common.exception import ExtractError
 class NaverSearch:
     def __init__(
             self,
-            client_id: str,
-            client_secret: str,
             target_platform: str,
             resp_format: str = "json"
     ) -> None:
@@ -20,8 +19,8 @@ class NaverSearch:
         """
         self.base_url = f"https://openapi.naver.com/v1/search/{target_platform}.{resp_format}?query="
         self.headers = {
-            "X-Naver-Client-Id": client_id,
-            "X-Naver-Client-Secret": client_secret
+            "X-Naver-Client-Id": os.getenv('NAVER_API_CLIENT_ID'),
+            "X-Naver-Client-Secret": os.getenv('NAVER_API_CLIENT_SECERT')
         }
 
     def request_with_keyword(
