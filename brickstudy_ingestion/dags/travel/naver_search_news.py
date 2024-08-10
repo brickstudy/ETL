@@ -1,5 +1,4 @@
-from datetime import timedelta
-import boto3
+from datetime import timedelta, datetime
 
 from airflow.models import DAG
 from airflow.utils.dates import days_ago
@@ -7,13 +6,7 @@ from airflow.operators.python import PythonOperator
 
 from src.naver.naver_search import NaverSearch
 from src.common.aws.s3_uploader import S3Uploader
-from dags.config import (
-    NAVER_API_CLIENT_ID,
-    NAVER_API_CLIENT_SECERT,
-    AWS_ACCESS_KEY_ID,
-    AWS_SECRET_ACCESS_KEY,
-    S3_BUCKET_NAME
-)
+
 
 DAG_ID = 'bronze_travel_naverapi'
 TARGET_PLATFORM = "news"
@@ -37,8 +30,6 @@ def fetch_and_store():
 
 def request_naver_api():
     client = NaverSearch(
-        client_id=NAVER_API_CLIENT_ID,
-        client_secret=NAVER_API_CLIENT_SECERT,
         target_platform=TARGET_PLATFORM
     )
     return client.request_with_keyword(
@@ -48,16 +39,10 @@ def request_naver_api():
 
 
 def upload_to_s3(data):
-    timestamp = data["lastBuildDate"]
-    s3_client = boto3.client(
-        "s3", 
-        aws_access_key_id=AWS_ACCESS_KEY_ID, 
-        aws_secret_access_key=AWS_SECRET_ACCESS_KEY
-    )
-    s3_uploader = S3Uploader(s3_client)
+    timestamp = datetime.now().strftime("%Y-%m-%d")
+    s3_uploader = S3Uploader()
     s3_uploader.write_s3(
-        bucket_name=S3_BUCKET_NAME,
-        file_key=f"{DAG_ID.replace('_', '/')}/{TARGET_PLATFORM}_{timestamp}",
+        file_key=f"{DAG_ID.replace('_', '/')}/{timestamp}/{TARGET_PLATFORM}",
         data_type='json',
         data=data["items"][0]
     )
