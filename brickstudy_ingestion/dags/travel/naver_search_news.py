@@ -8,7 +8,7 @@ from src.naver.naver_search import NaverSearch
 from src.common.aws.s3_uploader import S3Uploader
 
 
-DAG_ID = "bronze_travel_naverapi"
+DAG_ID = "bronze_travel_naversearch"
 TARGET_PLATFORM = 'news'
 QUERY = '여행'
 
