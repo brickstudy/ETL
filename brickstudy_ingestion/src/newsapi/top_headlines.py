@@ -1,4 +1,5 @@
 import os
+import json
 import requests
 
 
@@ -13,7 +14,7 @@ class TopHeadline:
                  ) -> None:
         API_KEY = os.getenv("NEWSAPI_KEY")
         self.country = country
-        self.category = category
+        self.category = category    # business, entertainment, general, health, science, sports, technology
         self.base_url = f"https://newsapi.org/v2/top-headlines?apiKey={API_KEY}"
 
     def request_with_country_category(self):
@@ -27,6 +28,6 @@ class TopHeadline:
             if response.status_code == 401:
                 raise ExtractError(**NewsApi.AuthError.value, log=str(content))
 
-            return content
+            return json.dumps(content, ensure_ascii=False)
         except Exception as e:
             raise ExtractError(**NewsApi.UnknownError.value, log=str(e))
