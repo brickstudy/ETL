@@ -44,7 +44,7 @@ def upload_to_s3(data):
     s3_uploader.write_s3(
         file_key=f"{DAG_ID.replace('_', '/')}/{timestamp}/{TARGET_PLATFORM}",
         data_type='json',
-        data=data["items"][0]
+        data=data
     )
 
 
