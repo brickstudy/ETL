@@ -12,7 +12,7 @@ class TopHeadline:
                  country: str = "kr",
                  category: str = "business"
                  ) -> None:
-        API_KEY = os.getenv("NEWSAPI_KEY")
+        API_KEY = os.getenv("NEWS_API_CLIENT_ID")
         self.country = country
         self.category = category    # business, entertainment, general, health, science, sports, technology
         self.base_url = f"https://newsapi.org/v2/top-headlines?apiKey={API_KEY}"
