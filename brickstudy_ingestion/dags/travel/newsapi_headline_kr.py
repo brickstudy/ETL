@@ -4,32 +4,30 @@ from datetime import timedelta, datetime
 from airflow.models import DAG
 from airflow.utils.dates import days_ago
 from airflow.operators.python import PythonOperator
-from airflow.operators.dagrun_operator import TriggerDagRunOperator
 
-from dags.config import set_env_variables
+from dags.utils.config import set_env_variables
 from src.newsapi.top_headlines import TopHeadline
 from src.common.aws.s3_uploader import S3Uploader
 
 
-# ================================
-# SET ENV
+# =========================================
+# Set env variables
 set_env_variables()
 
-# CHANGE PARAMETER
+# Change parameter
 DAG_ID = 'bronze_travel_newsapi'
 TARGET_PLATFORM = "headline"
 COUNTRY = "kr"
 CATEGORY = "general"
-# ========================
 
-
-# aiflow setting
+# Set aiflow setting
 default_args = {
     'owner': 'brickstudy',
     'start_date': days_ago(0),
     'retries': 1,
     'retry_delay': timedelta(minutes=5)
 }
+# =========================================
 
 
 # task setting

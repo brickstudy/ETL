@@ -5,6 +5,15 @@ from airflow.providers.mysql.operators.mysql import MySqlOperator
 from airflow.operators.python import PythonOperator
 
 
+# =========================================
+# Set aiflow setting
+default_args = {
+    'owner': 'brickstudy',
+    'start_date': days_ago(1),
+}
+# =========================================
+
+
 def set_env_vars(**context):
     """ MySQL에서 가져온 데이터를 환경 변수로 설정하는 함수 """
     query_results = context['task_instance'].xcom_pull(task_ids='get_env_vars')
@@ -14,16 +23,11 @@ def set_env_vars(**context):
         env_name = source_.upper()
         if client_id:
             Variable.set(env_name + "_CLIENT_ID", client_id)
-            print(f"{env_name}_CLIENT_ID set to: {client_id}")
+            # print(f"{env_name}_CLIENT_ID set to: {client_id}")
         if client_pw:
             Variable.set(env_name + "_CLIENT_PW", client_pw)
-            print(f"{env_name}_CLIENT_PW set to: {client_pw}")
+            # print(f"{env_name}_CLIENT_PW set to: {client_pw}")
 
-
-default_args = {
-    'owner': 'brickstudy',
-    'start_date': days_ago(1),
-}
 
 with DAG(
     dag_id='0_set_airflow_env_variable',

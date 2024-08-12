@@ -6,20 +6,26 @@ from airflow.operators.python import PythonOperator
 
 from src.naver.naver_search import NaverSearch
 from src.common.aws.s3_uploader import S3Uploader
+from dags.utils.config import set_env_variables
 
 
+# =========================================
+# Set env variables
+set_env_variables()
+
+# Change parameter
 DAG_ID = "bronze_travel_naversearch"
 TARGET_PLATFORM = 'news'
 QUERY = '여행'
 
-
-# aiflow setting
+# Set aiflow setting
 default_args = {
     'owner': 'brickstudy',
     'start_date': days_ago(0),
     'retries': 1,
     'retry_delay': timedelta(minutes=5)
 }
+# =========================================
 
 
 # task setting
@@ -42,7 +48,7 @@ def upload_to_s3(data):
     timestamp = datetime.now().strftime("%Y-%m-%d")
     s3_uploader = S3Uploader()
     s3_uploader.write_s3(
-        file_key=f"{DAG_ID.replace('_', '/')}/{timestamp}/{TARGET_PLATFORM}",
+        file_key=f"{DAG_ID.replace('_', '/')}/{timestamp}/{TARGET_PLATFORM}.json",
         data_type='json',
         data=data
     )
