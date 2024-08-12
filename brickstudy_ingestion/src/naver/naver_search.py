@@ -21,7 +21,7 @@ class NaverSearch:
         self.base_url = f"https://openapi.naver.com/v1/search/{target_platform}.{resp_format}?query="
         self.headers = {
             "X-Naver-Client-Id": os.getenv('NAVERSEARCH_CLIENT_ID'),
-            "X-Naver-Client-Secret": os.getenv('NAVERSEARCH_CLIENT_SECERT')
+            "X-Naver-Client-Secret": os.getenv('NAVERSEARCH_CLIENT_PW')
         }
 
     def request_with_keyword(

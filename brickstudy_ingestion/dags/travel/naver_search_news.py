@@ -7,7 +7,7 @@ from airflow.operators.python import PythonOperator
 from src.naver.naver_search import NaverSearch
 from src.common.aws.s3_uploader import S3Uploader
 from dags.utils.config import set_env_variables
-
+from dags.utils.discord_message import on_failure_callback
 
 # =========================================
 # Set env variables
@@ -23,7 +23,8 @@ default_args = {
     'owner': 'brickstudy',
     'start_date': days_ago(0),
     'retries': 1,
-    'retry_delay': timedelta(minutes=5)
+    'retry_delay': timedelta(minutes=1),
+    'on_failure_callback': on_failure_callback,
 }
 # =========================================
 

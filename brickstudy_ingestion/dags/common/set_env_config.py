@@ -5,6 +5,8 @@ from airflow.providers.mysql.operators.mysql import MySqlOperator
 from airflow.operators.python import PythonOperator
 from airflow.utils.db import provide_session
 
+from dags.utils.discord_message import on_failure_callback
+
 # =========================================
 """
 Description:
@@ -19,6 +21,7 @@ Description:
 default_args = {
     'owner': 'brickstudy',
     'start_date': days_ago(1),
+    'on_failure_callback': on_failure_callback,
 }
 # =========================================
 
