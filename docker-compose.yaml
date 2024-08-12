@@ -71,7 +71,7 @@ x-airflow-common:
     AIRFLOW__SCHEDULER__ENABLE_HEALTH_CHECK: 'true'
     # WARNING: Use _PIP_ADDITIONAL_REQUIREMENTS option ONLY for a quick checks
     # for other purpose (development, test and especially production usage) build/extend Airflow image.
-    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-apache-airflow[postgres,virtualenv]}
+    _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-apache-airflow[postgres,virtualenv,apache-airflow-providers-mysql]}
     AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/brickstudy_ingestion/dags
     PYTHONPATH: $PYTHONPATH:/opt/airflow/brickstudy_ingestion
   volumes:

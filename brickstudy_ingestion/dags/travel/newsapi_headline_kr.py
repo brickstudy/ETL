@@ -8,20 +8,24 @@ from airflow.operators.python import PythonOperator
 from src.newsapi.top_headlines import TopHeadline
 from src.common.aws.s3_uploader import S3Uploader
 
+from dags.utils.discord_message import on_failure_callback
 
+# =========================================
+# Change parameter
 DAG_ID = 'bronze_travel_newsapi'
 TARGET_PLATFORM = "headline"
 COUNTRY = "kr"
 CATEGORY = "general"
 
-
-# aiflow setting
+# Set aiflow setting
 default_args = {
     'owner': 'brickstudy',
     'start_date': days_ago(0),
     'retries': 1,
-    'retry_delay': timedelta(minutes=5)
+    'retry_delay': timedelta(minutes=1),
+    'on_failure_callback': on_failure_callback,
 }
+# =========================================
 
 
 # task setting
@@ -39,7 +43,7 @@ def upload_to_s3(data):
     timestamp = datetime.now().strftime("%Y-%m-%d")
     s3_uploader = S3Uploader()
     s3_uploader.write_s3(
-        file_key=f"{DAG_ID.replace('_', '/')}/{timestamp}/{TARGET_PLATFORM}",
+        file_key=f"{DAG_ID.replace('_', '/')}/{timestamp}/{TARGET_PLATFORM}.json",
         data_type='json',
         data=data
     )
