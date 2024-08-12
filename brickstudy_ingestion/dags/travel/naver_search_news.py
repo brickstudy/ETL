@@ -6,13 +6,9 @@ from airflow.operators.python import PythonOperator
 
 from src.naver.naver_search import NaverSearch
 from src.common.aws.s3_uploader import S3Uploader
-from dags.utils.config import set_env_variables
 from dags.utils.discord_message import on_failure_callback
 
 # =========================================
-# Set env variables
-set_env_variables()
-
 # Change parameter
 DAG_ID = "bronze_travel_naversearch"
 TARGET_PLATFORM = 'news'
