@@ -4,15 +4,23 @@ from datetime import timedelta, datetime
 from airflow.models import DAG
 from airflow.utils.dates import days_ago
 from airflow.operators.python import PythonOperator
+from airflow.operators.dagrun_operator import TriggerDagRunOperator
 
+from dags.config import set_env_variables
 from src.newsapi.top_headlines import TopHeadline
 from src.common.aws.s3_uploader import S3Uploader
 
 
+# ================================
+# SET ENV
+set_env_variables()
+
+# CHANGE PARAMETER
 DAG_ID = 'bronze_travel_newsapi'
 TARGET_PLATFORM = "headline"
 COUNTRY = "kr"
 CATEGORY = "general"
+# ========================
 
 
 # aiflow setting
@@ -39,7 +47,7 @@ def upload_to_s3(data):
     timestamp = datetime.now().strftime("%Y-%m-%d")
     s3_uploader = S3Uploader()
     s3_uploader.write_s3(
-        file_key=f"{DAG_ID.replace('_', '/')}/{timestamp}/{TARGET_PLATFORM}",
+        file_key=f"{DAG_ID.replace('_', '/')}/{timestamp}/{TARGET_PLATFORM}.json",
         data_type='json',
         data=data
     )

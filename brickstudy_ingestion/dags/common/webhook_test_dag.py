@@ -15,7 +15,7 @@ def send_discord_message():
     data = {
         "content": "Airflow에서 보내는 테스트 메시지입니다."
     }
-    
+
     response = requests.post(url, headers=headers, data=json.dumps(data).encode('utf-8'))
     response.raise_for_status()
 

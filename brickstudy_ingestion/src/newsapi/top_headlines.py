@@ -12,12 +12,14 @@ class TopHeadline:
                  country: str = "kr",
                  category: str = "business"
                  ) -> None:
-        API_KEY = os.getenv("NEWS_API_CLIENT_ID")
+        API_KEY = os.getenv("NEWSAPI_CLIENT_ID")
         self.country = country
         self.category = category    # business, entertainment, general, health, science, sports, technology
         self.base_url = f"https://newsapi.org/v2/top-headlines?apiKey={API_KEY}"
 
     def request_with_country_category(self):
+        print(os.getenv("NEWS_API_CLIENT_ID"))
+        print(f"==========={self.base_url}")
         try:
             sub_url = f"&country={self.country}&category={self.category}"
             url = self.base_url + sub_url
