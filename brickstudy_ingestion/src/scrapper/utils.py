@@ -16,7 +16,7 @@ def write_local_as_json(data, file_name):
     from dataclasses import asdict
     import json
 
-    path = f"/opt/airflow/logs/{file_name}.json"
+    path = f"/opt/airflow/logs/viral/{file_name}.json"
     json_data = {b_name: asdict(details) for b_name, details in data.items()}
     with open(path, 'w', encoding='utf-8') as json_file:
         json.dump(json_data, json_file, ensure_ascii=False, indent=4)
