@@ -1,22 +1,35 @@
 from datetime import datetime
 
 from airflow import DAG
-from airflow.operators.python import PythonVirtualenvOperator
+from airflow.operators.python import PythonVirtualenvOperator, PythonOperator
+from airflow.operators.bash_operator import BashOperator
 
+from src.common.aws.s3_uploader import S3Uploader
 
+# =========================================
+# Change parameter
 DAG_ID = "bronze_viral_oliveyoung"
+TARGET_PLATFORM = "brand"
 
+# Dag specific variables
+BRAND_JSON_FILE_PATH = "/opt/airflow/logs/viral"
+TIMESTAMP = datetime.now().strftime("%Y-%m-%d")
+MERGED_JSON_FILE = f"brand_{TIMESTAMP}.json"
+
+# Set aiflow setting
 default_args = {
     'owner': 'airflow',
     'start_date': datetime(2023, 1, 1)
 }
+# =========================================
 
 
+# task1
 def entrypoint():
     import logging
     import multiprocess
     from src.scrapper.oliveyoung import Brand
-    from src.scrapper.utils import dict_partitioner, write_local_as_json, read_local_as_dict
+    from src.scrapper.utils import dict_partitioner, write_local_as_json
 
     CONCURRENCY_LEVEL = multiprocess.cpu_count()
 
@@ -37,10 +50,20 @@ def entrypoint():
         raise
 
 
+# task3
+def upload_to_s3():
+    s3 = S3Uploader()
+    s3.s3_client.upload_file(
+        Filename=f"{BRAND_JSON_FILE_PATH}/{MERGED_JSON_FILE}",
+        Bucket="brickstudy",
+        Key=f"{DAG_ID.replace('_', '/')}/{TIMESTAMP}/{TARGET_PLATFORM}.json",
+    )
+
+
 with DAG(
     dag_id=DAG_ID,
     default_args=default_args,
-    schedule_interval='@daily'
+    schedule_interval='@weekly'
 ):
 
     task1 = PythonVirtualenvOperator(
@@ -51,4 +74,20 @@ with DAG(
         python_callable=entrypoint
     )
 
-    task1
+    task2 = BashOperator(
+        task_id='merge_json_files_into_single_json_file',
+        bash_command="""
+        jq -s 'flatten' {{ BRAND_JSON_FILE_PATH }}/*.json > {{ MERGED_JSON_FILE }}
+        """,
+        env={
+            'BRAND_JSON_FILE_PATH': BRAND_JSON_FILE_PATH,
+            'MERGED_JSON_FILE': MERGED_JSON_FILE
+        }
+    )
+
+    task3 = PythonOperator(
+        task_id="upload_brand_json_file_to_s3",
+        python_callable=upload_to_s3
+    )
+
+    task1 >> task2 >> task3
