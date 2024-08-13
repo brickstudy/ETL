@@ -36,8 +36,11 @@ def entrypoint():
     def get_item(data: tuple):
         brand = Brand({data[0]: data[1]})
         brand.crawl_items()
-        file_name = 'brand_item_data_' + data[0]
-        write_local_as_json(data=brand.brand_metadata, file_name=file_name)
+        write_local_as_json(
+            data=brand.brand_metadata,
+            file_path="/opt/airflow/logs/viral",
+            file_name='brand_item_data_' + data[0]
+        )
 
     try:
         brand = Brand()

@@ -12,21 +12,28 @@ def dict_partitioner(data: dict, level: int):
         start = end
 
 
-def write_local_as_json(data, file_name):
+def write_local_as_json(data, file_path, file_name):
     from dataclasses import asdict
     import json
+    import os
 
-    path = f"/opt/airflow/logs/viral/{file_name}.json"
+    try:
+        os.makedirs(file_path, exist_ok=True)
+    except PermissionError:
+        print("*** write_local_as_json cannot create given directory ***")
+        raise
+
+    path = f"{file_path}/{file_name}.json"
     json_data = {b_name: asdict(details) for b_name, details in data.items()}
     with open(path, 'w', encoding='utf-8') as json_file:
         json.dump(json_data, json_file, ensure_ascii=False, indent=4)
 
 
-def read_local_as_dict(file_name):
+def read_local_as_dict(file_path, file_name):
     import json
     from src.scrapper.models import OliveyoungBrand
 
-    path = f"/opt/airflow/logs/{file_name}.json"
+    path = f"{file_path}/{file_name}.json"
     with open(path, 'r', encoding='utf-8') as json_file:
         loaded_data = json.load(json_file)
 
