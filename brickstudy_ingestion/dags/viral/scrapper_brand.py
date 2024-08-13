@@ -93,4 +93,10 @@ with DAG(
         python_callable=upload_to_s3
     )
 
-    task1 >> task2 >> task3
+    task4 = BashOperator(
+        task_id="clear_local_path",
+        bash_command="rm {{ params.BRAND_JSON_FILE_PATH }}/*",
+        params={'BRAND_JSON_FILE_PATH': BRAND_JSON_FILE_PATH}
+    )
+
+    task1 >> task2 >> task3 >> task4
