@@ -80,9 +80,9 @@ with DAG(
     task2 = BashOperator(
         task_id='merge_json_files_into_single_json_file',
         bash_command="""
-        jq -s 'flatten' {{ BRAND_JSON_FILE_PATH }}/*.json > {{ MERGED_JSON_FILE }}
+        jq -s 'flatten' {{ params.BRAND_JSON_FILE_PATH }}/*.json > {{ params.MERGED_JSON_FILE }}
         """,
-        env={
+        params={
             'BRAND_JSON_FILE_PATH': BRAND_JSON_FILE_PATH,
             'MERGED_JSON_FILE': MERGED_JSON_FILE
         }
