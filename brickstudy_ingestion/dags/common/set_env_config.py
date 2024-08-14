@@ -53,14 +53,16 @@ def set_media_env_var(**context):
     query_results = context['task_instance'].xcom_pull(task_ids='get_media_env_vars')
 
     # set env variables
-    for source_, client_id, client_pw in query_results:
+    for source_, client_id, client_pw, token in query_results:
         env_name = source_.upper()
         if client_id:
             Variable.set(env_name + "_CLIENT_ID", client_id)
             # print(f"{env_name}_CLIENT_ID set to: {client_id}")
         if client_pw:
-            Variable.set(env_name + "_CLIENT_PW", client_pw)
+            Variable.set(env_name + "_CLIENT_PASSWORD", client_pw)
             # print(f"{env_name}_CLIENT_PW set to: {client_pw}")
+        if token:
+            Variable.set(env_name + "_TOKEN", token)
 
 
 with DAG(
@@ -87,7 +89,7 @@ with DAG(
     get_media_env_vars = MySqlOperator(
         task_id='get_media_env_vars',
         mysql_conn_id='MYSQL_CONN_URL',
-        sql='SELECT source_, client_id, client_pw FROM brickas.media;',
+        sql='SELECT source_, client_id, client_pw, token FROM brickas.media;',
     )
 
     # Set media env variables

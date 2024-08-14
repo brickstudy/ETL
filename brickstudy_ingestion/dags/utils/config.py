@@ -14,12 +14,16 @@ def set_env_variables():
     ALL_ENV_VARIABLES = [
         # NAVER API
         "NAVERSEARCH_CLIENT_ID",
-        "NAVERSEARCH_CLIENT_PW",
+        "NAVERSEARCH_CLIENT_PASSWORD",
         # NEWS API
-        "NEWSAPI_CLIENT_ID",
+        "NEWSAPI_TOKEN",
         # AWS
         "AWS_ACCESS_KEY_ID",
-        "AWS_SECRET_ACCESS_KEY"
+        "AWS_SECRET_ACCESS_KEY",
+        # Twitter
+        "TWITTER_CLIENT_ID",
+        "TWITTER_CLIENT_PASSWORD",
+        "TWITTER_TOKEN"
     ]
     for ENV_VARIABLE in ALL_ENV_VARIABLES:
         os.environ[ENV_VARIABLE] = Variable.get(ENV_VARIABLE, "")
