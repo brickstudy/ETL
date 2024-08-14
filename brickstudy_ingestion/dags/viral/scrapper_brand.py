@@ -80,26 +80,9 @@ with DAG(
         python_callable=entrypoint
     )
 
-    task2 = BashOperator(
-        task_id='merge_json_files_into_single_json_file',
-        bash_command="""
-        jq -s 'flatten' {{ params.BRAND_JSON_FILE_PATH }}/*.json > {{ params.MERGED_JSON_FILE }}
-        """,
-        params={
-            'BRAND_JSON_FILE_PATH': BRAND_JSON_FILE_PATH,
-            'MERGED_JSON_FILE': MERGED_JSON_FILE
-        }
-    )
-
     task3 = PythonOperator(
         task_id="upload_brand_json_file_to_s3",
         python_callable=upload_to_s3
-    )
-
-    task4 = BashOperator(
-        task_id="clear_local_path",
-        bash_command="rm {{ params.BRAND_JSON_FILE_PATH }}/*",
-        params={'BRAND_JSON_FILE_PATH': BRAND_JSON_FILE_PATH}
     )
 
     task1
