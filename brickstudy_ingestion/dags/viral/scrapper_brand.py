@@ -1,10 +1,12 @@
 from datetime import datetime
+import os
+import json
+import requests
+import logging
 
 from airflow import DAG
 from airflow.operators.python import PythonVirtualenvOperator, PythonOperator
-from airflow.operators.bash_operator import BashOperator
 
-from src.common.aws.s3_uploader import S3Uploader
 from dags.utils.discord_message import on_failure_callback
 
 # =========================================
@@ -57,13 +59,39 @@ def entrypoint():
 
 
 # task3
-def upload_to_s3():
-    s3 = S3Uploader()
-    s3.s3_client.upload_file(
-        Filename=f"{BRAND_JSON_FILE_PATH}/{MERGED_JSON_FILE}",
-        Bucket="brickstudy",
-        Key=f"{DAG_ID.replace('_', '/')}/{TIMESTAMP}/{TARGET_PLATFORM}.json",
-    )
+def kafka_to_s3():
+    KAFKA_CONNECT = "kafka-connect"
+    url = f'http://{KAFKA_CONNECT}:8083/connectors/sink-s3-voluble/config'
+    headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    }
+    data = {
+        "connector.class": "io.confluent.connect.s3.S3SinkConnector",
+        "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+        "tasks.max": 1,
+        "topics": "oliveyoung",
+        "s3.region": "ap-northeast-1",
+        "s3.bucket.name": "brickstudy",
+        "s3.credentials.provider.class": "AwsAssumeRoleCredentialsProvider",
+        "flush.size": 65536,
+        "storage.class": "io.confluent.connect.s3.storage.S3Storage",
+        "format.class": "io.confluent.connect.s3.format.avro.AvroFormat",          
+        "topics.dir": f"{DAG_ID.replace('_', '/')}",
+        "locale": "ko_KR",
+        "timezone": "Asia/Seoul"
+    }
+        # 	"schema.generator.class": "io.confluent.connect.storage.hive.schema.DefaultSchemaGenerator",
+        # 	"schema.compatibility": "NONE",
+        #     "partitioner.class": "io.confluent.connect.storage.partitioner.DefaultPartitioner",
+        #     "transforms": "AddMetadata",
+        #     "transforms.AddMetadata.type": "org.apache.kafka.connect.transforms.InsertField$Value",
+        #     "transforms.AddMetadata.offset.field": "_offset",
+        #     "transforms.AddMetadata.partition.field": "_partition"
+        # }
+
+    response = requests.put(url, headers=headers, data=json.dumps(data))
+    print(response)
 
 
 with DAG(
@@ -72,17 +100,39 @@ with DAG(
     schedule_interval='@weekly'
 ):
 
-    task1 = PythonVirtualenvOperator(
-        task_id='get_brand_metadata',
-        python_version='3.7',
-        system_site_packages=False,
-        requirements=["beautifulsoup4==4.9.3", "python-dotenv==0.19.0", "multiprocess", "kafka-python"],
-        python_callable=entrypoint
-    )
+    # task1 = PythonVirtualenvOperator(
+    #     task_id='get_brand_metadata',
+    #     python_version='3.7',
+    #     system_site_packages=False,
+    #     requirements=["beautifulsoup4==4.9.3", "python-dotenv==0.19.0", "multiprocess", "kafka-python"],
+    #     python_callable=entrypoint
+    # )
 
     task3 = PythonOperator(
         task_id="upload_brand_json_file_to_s3",
-        python_callable=upload_to_s3
+        python_callable=kafka_to_s3
     )
 
-    task1
+    task3
+
+
+"""
+
+
+curl -i -X PUT -H "Accept:application/json" \
+    -H  "Content-Type:application/json" http://kafka-connect:8083/connectors/sink-s3-voluble/config \
+    -d '
+ {"connector.class": "io.confluent.connect.s3.S3SinkConnector",
+    "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "tasks.max": 1,
+    "topics": "oliveyoung",
+    "s3.region": "ap-northeast-2",
+    "s3.bucket.name": "brickstudy",
+    "s3.credentials.provider.class": "AwsAssumeRoleCredentialsProvider",
+    "topics.dir": "bronze/viral/oliveyoung",
+    "flush.size": 65536,
+    "storage.class": "io.confluent.connect.s3.storage.S3Storage",
+    "format.class": "io.confluent.connect.s3.format.json.JsonFormat"
+}'
+
+"""
