@@ -10,3 +10,6 @@ logs
 
 # system log
 log
+
+# kafka data
+kafka-data
