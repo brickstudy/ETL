@@ -31,11 +31,11 @@ def fetch_and_send():
     data = fetch_data_from_api("test content 입니다.")
 
     # Send kafka cluster
-    from src.common.kafka.utils import KafkaUtil
+    from src.common.kafka.utils import Kafka
 
     KAFKA_TOPIC = "mock-randomuser"
 
-    producer = KafkaUtil()
+    producer = Kafka()
     producer.send_data_to_kafka(KAFKA_TOPIC, data)
 
 
