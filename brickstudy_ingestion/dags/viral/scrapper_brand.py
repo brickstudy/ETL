@@ -5,6 +5,7 @@ from airflow.operators.python import PythonVirtualenvOperator, PythonOperator
 from airflow.operators.bash_operator import BashOperator
 
 from src.common.aws.s3_uploader import S3Uploader
+from dags.utils.discord_message import on_failure_callback
 
 # =========================================
 # Change parameter
@@ -19,7 +20,8 @@ MERGED_JSON_FILE = f"brand_{TIMESTAMP}.json"
 # Set aiflow setting
 default_args = {
     'owner': 'airflow',
-    'start_date': datetime(2023, 1, 1)
+    'start_date': datetime(2023, 1, 1),
+    'on_failure_callback': on_failure_callback,
 }
 # =========================================
 
@@ -29,7 +31,7 @@ def entrypoint():
     import logging
     import multiprocess
     from src.scrapper.oliveyoung import Brand
-    from src.scrapper.utils import dict_partitioner, write_local_as_json
+    from src.scrapper.utils import write_local_as_json
 
     CONCURRENCY_LEVEL = multiprocess.cpu_count()
 
@@ -45,9 +47,8 @@ def entrypoint():
     try:
         brand = Brand()
         brand.crawl_brand_metadata()
-        for partitioned_data in dict_partitioner(data=brand.brand_metadata, level=1):
-            with multiprocess.Pool(CONCURRENCY_LEVEL) as p:
-                p.map(get_item, list(partitioned_data.items()))
+        with multiprocess.Pool(CONCURRENCY_LEVEL) as p:
+            p.map(get_item, list(brand.brand_metadata.items()))
     except Exception as e:
         logging.error("***entrypoint error***", e)
         raise
