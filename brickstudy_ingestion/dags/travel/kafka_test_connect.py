@@ -23,7 +23,8 @@ default_args = {
 
 
 # task setting
-def fetch_and_send():
+def fetch_and_send(dag_id):
+
     # GET data
     def fetch_data_from_api(content):
         return {"test": content}
@@ -33,10 +34,8 @@ def fetch_and_send():
     # Send kafka cluster
     from src.common.kafka.utils import Kafka
 
-    KAFKA_TOPIC = "mock-randomuser"
-
     producer = Kafka()
-    producer.send_data_to_kafka(KAFKA_TOPIC, data)
+    producer.send_data_to_kafka(dag_id, data)
 
 
 with DAG(
@@ -49,6 +48,7 @@ with DAG(
         task_id="request_mock_randomuser",
         python_version='3.7',
         system_site_packages=False,
+        op_kwargs={'dag_id': DAG_ID},
         requirements=["python-dotenv==0.19.0", "kafka-python", "requests"],
         python_callable=fetch_and_send
     )
