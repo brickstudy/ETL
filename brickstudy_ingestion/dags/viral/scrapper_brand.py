@@ -30,23 +30,25 @@ default_args = {
 def entrypoint():
     import logging
     import multiprocess
+    from dataclasses import asdict
     from src.scrapper.oliveyoung import Brand
-    from src.scrapper.utils import write_local_as_json
+    from src.common.kafka.utils import Kafka
 
     CONCURRENCY_LEVEL = multiprocess.cpu_count()
 
     def get_item(data: tuple):
         brand = Brand({data[0]: data[1]})
         brand.crawl_items()
-        write_local_as_json(
-            data=brand.brand_metadata,
-            file_path="/opt/airflow/logs/viral",
-            file_name='brand_item_data_' + data[0]
+        json_data = {b_name: asdict(details) for b_name, details in brand.brand_metadata.items()}
+        producer.send_data_to_kafka(
+            kafka_topic='oliveyoung',
+            data=json_data
         )
 
     try:
         brand = Brand()
         brand.crawl_brand_metadata()
+        producer = Kafka()
         with multiprocess.Pool(CONCURRENCY_LEVEL) as p:
             p.map(get_item, list(brand.brand_metadata.items()))
     except Exception as e:
@@ -74,7 +76,7 @@ with DAG(
         task_id='get_brand_metadata',
         python_version='3.7',
         system_site_packages=False,
-        requirements=["beautifulsoup4==4.9.3", "python-dotenv==0.19.0", "multiprocess"],
+        requirements=["beautifulsoup4==4.9.3", "python-dotenv==0.19.0", "multiprocess", "kafka-python"],
         python_callable=entrypoint
     )
 
@@ -100,4 +102,4 @@ with DAG(
         params={'BRAND_JSON_FILE_PATH': BRAND_JSON_FILE_PATH}
     )
 
-    task1 >> task2 >> task3 >> task4
+    task1
