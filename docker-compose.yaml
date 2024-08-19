@@ -423,6 +423,8 @@ services:
     ports:
       - 8083:8083
     environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       CONNECT_BOOTSTRAP_SERVERS: "kafka1:19091"
       CONNECT_REST_PORT: 8083
       CONNECT_GROUP_ID: "kafka-connect"
@@ -441,14 +443,12 @@ services:
       CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: "1"
       CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components/"
       CONNECT_LOG4J_APPENDER_STDOUT_LAYOUT_CONVERSIONPATTERN: "[%d] %p %X{connector.context}%m (%c:%L)%n"
-      
     #  ---------------
     # If you want to use the Confluent Hub installer to d/l component, but make them available
     # when running this offline, spin up the stack once and then run : 
     #   docker cp kafka-connect:/usr/share/confluent-hub-components ./data/connect-jars
     volumes:
       - ./kafka-data/kafka-connect/connectors:/connectors
-      - ./aws_credentials:/root/.aws/credentials
     # In the command section, $ are replaced with $$ to avoid the error 'Invalid interpolation format for "command" option'
     command:
       - bash

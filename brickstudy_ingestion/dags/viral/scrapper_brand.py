@@ -52,7 +52,8 @@ def entrypoint():
 with DAG(
     dag_id=DAG_ID,
     default_args=default_args,
-    schedule_interval='@weekly'
+    schedule_interval='@weekly',
+    catchup=False
 ):
 
     task = PythonVirtualenvOperator(
@@ -67,26 +68,23 @@ with DAG(
 
 
 """
-curl -i -X PUT -H "Accept:application/json" \
-    -H  "Content-Type:application/json" \
-    http://kafka-connect:8083/connectors/sink-s3-voluble/config \
-    -d '
- {
+curl -i -X PUT -H "Accept:application/json" -H  "Content-Type:application/json" http://kafka-connect:8083/connectors/sink-s3-voluble/config -d '{
     "connector.class": "io.confluent.connect.s3.S3SinkConnector",
     "key.converter": "org.apache.kafka.connect.storage.StringConverter",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false",
     "tasks.max": 1,
     "topics": "oliveyoung",
-    "aws.signing_region": "ap-northeast-2",
+    "aws.signing_region": "ap-northeast-2", 
     "s3.part.size": 5242880,
     "s3.region": "ap-northeast-2",
     "s3.bucket.name": "brickstudy",
     "s3.credentials.provider.class": "com.amazonaws.auth.DefaultAWSCredentialsProviderChain",
     "topics.dir": "bronze/viral",
     "partitioner.class": "io.confluent.connect.storage.partitioner.TimeBasedPartitioner",
-    "path.format": "${topic}/${partitioned_date}",
     "partition.duration.ms": "86400000",
-    "timestamp.extractor": "RecordField",
-    "timestamp.field": "released_date"
+    "timestamp.extractor": "Record",
+    "path.format": "yyyy-MM-dd",
     "flush.size": 100,
     "rotate.interval.ms": 60000,
     "storage.class": "io.confluent.connect.s3.storage.S3Storage",
