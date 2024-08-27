@@ -24,6 +24,7 @@ def set_env_variables():
         "TWITTER_CLIENT_ID",
         "TWITTER_CLIENT_PASSWORD",
         "TWITTER_TOKEN"
+        "TWITTER_CRAWLER_AUTH_TOKEN_PASSWORD"
     ]
     for ENV_VARIABLE in ALL_ENV_VARIABLES:
         os.environ[ENV_VARIABLE] = Variable.get(ENV_VARIABLE, "")
