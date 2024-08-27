@@ -18,3 +18,7 @@ class TransformError(BaseException):
 class LoadError(BaseException):
     def __init__(self, code: int, message: str, log: any) -> None:
         super().__init__(code, message, log)
+
+
+class RetryException(Exception):
+    pass
