@@ -13,3 +13,4 @@ log
 
 # kafka data
 kafka-data
+aws_credentials

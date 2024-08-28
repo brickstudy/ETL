@@ -1,4 +1,5 @@
 from collections import defaultdict
+from datetime import datetime
 
 from . import get_soup
 from src.scrapper.models import brand_generator
@@ -45,6 +46,7 @@ class Brand:
         파싱한 dispCatNo 기준으로 url 접근해서 해당 카테고리 내 브랜드 정보 파싱
         """
         base_url = 'https://www.oliveyoung.co.kr/store/display/getMCategoryList.do?dispCatNo='
+        released_date = datetime.today().strftime("%Y-%m-%d")
 
         for category_name, category_id in category_urls:
             cat_name = category_name.split('^')[-1]  # 공통^드로우^향수/디퓨저_여성향수
@@ -55,6 +57,7 @@ class Brand:
             brand_names = [input_tag.get('data-brndnm') for input_tag in input_tags]
             for brand in brand_names:
                 self.brand_metadata[brand].category.append(cat_name)
+                self.brand_metadata[brand].released_date = released_date
 
     def _generate_query_keyword(self) -> None:
         """
