@@ -9,7 +9,7 @@ from src.scrapper.models import inst_generator
 
 
 class InsCrawler:
-    def __init__(self, dev: bool = False):
+    def __init__(self, keywords: list = None, dev: bool = False):
         if dev:
             proj_path = f'{'/'.join(os.getcwd().split('/')[:os.getcwd().split('/').index('brickstudy_ingestion')])}/brickstudy_ingestion'
         else:
@@ -17,6 +17,7 @@ class InsCrawler:
         self.base_path = f'{proj_path}/src/scrapper'
 
         self.user_id, self.password = self.load_config(dev=dev)
+        self.keywords = keywords
         self.data = defaultdict(inst_generator)
         self.driver = webdriver.Chrome()
         self.login()
