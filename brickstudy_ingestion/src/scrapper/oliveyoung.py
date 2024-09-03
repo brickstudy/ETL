@@ -1,7 +1,7 @@
 from collections import defaultdict
 from datetime import datetime
 
-from . import get_soup
+from src.scrapper.utils import get_soup
 from src.scrapper.models import brand_generator
 
 
@@ -101,7 +101,7 @@ class Brand:
         """
         for brand in self.brand_metadata.keys():
             brand_url = self.brand_metadata[brand].brand_shop_detail_url
-            brand_url_soup = get_soup(brand_url)
+            brand_url_soup = get_soup(brand_url)==----------0-0
             if brand_url_soup is None:
                 continue
             item_dic = {}
