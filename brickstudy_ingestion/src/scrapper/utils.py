@@ -111,3 +111,12 @@ def retry(attempt=10, wait=0.3):
         return wrapped_f
 
     return wrap
+
+
+def current_datetime_getter():
+    import pytz
+    from datetime import datetime
+    kst = pytz.timezone('Asia/Seoul')
+    current_time = datetime.now(kst)
+    current_datetime = current_time.strftime("%Y%m%d_%H%M%S")
+    return current_datetime
