@@ -1,3 +1,4 @@
+import os
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -8,25 +9,29 @@ from src.scrapper.models import inst_generator
 
 
 class InsCrawler:
-    def __init__(self):
-        # TODO proj_path(실행환경의 project 절대경로) 받는 부분 수정  환경변수 설정 필요
-        proj_path = '/Users/seoyeongkim/Documents/ETL/brickstudy_ingestion'
+    def __init__(self, dev: bool = False):
+        if dev:
+            proj_path = f'{'/'.join(os.getcwd().split('/')[:os.getcwd().split('/').index('brickstudy_ingestion')])}/brickstudy_ingestion'
+        else:
+            proj_path = '/opt/airflow/brickstudy_ingestion'
         self.base_path = f'{proj_path}/src/scrapper'
-        self.user_id, self.password, self.keywords, self.iter = self.load_config()
+
+        self.user_id, self.password = self.load_config(dev=dev)
         self.data = defaultdict(inst_generator)
         self.driver = webdriver.Chrome()
         self.login()
 
-    def load_config(self):
-        with open(f'{self.base_path}/config.json', 'r', encoding='utf-8') as f:
-            config = json.load(f)
+    def load_config(self, dev: bool = False):
+        if dev:
+            with open(f'{self.base_path}/config.json', 'r', encoding='utf-8') as f:
+                config = json.load(f)
 
-        username = config['login']['username']
-        password = config['login']['password']
-        keywords = config['keywords']
-        iter = config['iter']
-
-        return username, password, keywords, iter
+            username = config['login']['username']
+            password = config['login']['password']
+        else:
+            username = os.environ('INSTAGRAM_ID')
+            password = os.environ('INSTAGRAM_PASSWORD')
+        return (username, password)
 
     def login(self):
         # Instagram 접속 및 로그인

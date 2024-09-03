@@ -1,5 +1,4 @@
 import time
-import pandas as pd
 from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
 import requests
