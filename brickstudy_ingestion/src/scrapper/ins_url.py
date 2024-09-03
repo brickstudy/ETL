@@ -1,6 +1,5 @@
 import time
 from bs4 import BeautifulSoup
-from selenium.webdriver.common.by import By
 import urllib
 import re
 
@@ -64,3 +63,4 @@ class InsURLCrawler(InsCrawler):
             print('오류 발생')
 
         print(f'키워드 {keyword}의 URL 정보 수집 완료.')
+        self.driver.close()
