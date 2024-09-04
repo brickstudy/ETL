@@ -7,8 +7,8 @@ from src.scrapper.inscrawler import InsCrawler
 
 
 class InsURLCrawler(InsCrawler):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, keywords: list = None, dev: bool = False):
+        super().__init__(keywords, dev)
 
     def get_urls(self, keyword: str = None):
         if keyword is not None:              # execute with given keyword
@@ -63,4 +63,3 @@ class InsURLCrawler(InsCrawler):
             print('오류 발생')
 
         print(f'키워드 {keyword}의 URL 정보 수집 완료.')
-        self.driver.close()

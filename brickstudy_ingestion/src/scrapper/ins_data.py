@@ -8,8 +8,10 @@ from src.scrapper.inscrawler import InsCrawler
 
 
 class InsDataCrawler(InsCrawler):
-    def __init__(self, data):
-        super().__init__()
+    def __init__(self,
+                 driver, data,
+                 dev: bool = False):
+        super().__init__(dev=dev, driver=driver)
         self.data = data
         self.headers = {
             'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36'
