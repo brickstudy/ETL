@@ -1,7 +1,6 @@
 import os
 import time
 from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 import json
 from collections import defaultdict
@@ -26,11 +25,7 @@ class InsCrawler:
         self.keywords = keywords
         self.data = defaultdict(inst_generator)
 
-        if driver is None:
-            self.load_driver(dev)
-            self.login()
-        else:
-            self.driver = driver
+        self.login()
 
     def load_config(self, dev: bool = False):
         if dev:
@@ -53,7 +48,7 @@ class InsCrawler:
         user.send_keys(self.user_id)
         self.driver.find_element(By.XPATH, '//*[@id="loginForm"]/div/div[2]/div/label/input').send_keys(self.password)
         self.driver.find_element(By.XPATH, '//*[@id="loginForm"]/div/div[3]/button/div').click()
-        time.sleep(40)
+        time.sleep(10)
 
     def materialize(self):
         """

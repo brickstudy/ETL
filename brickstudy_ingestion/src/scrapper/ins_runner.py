@@ -40,10 +40,11 @@ def crawl_data():
             pass
 
         try:
+            cur_date = current_datetime_getter()
             write_local_as_json(
                 data=post_crawler.data,
                 file_path=f"{post_crawler.base_path}/results/data",
-                file_name=f"instagram_{current_datetime_getter}"
+                file_name=f"instagram_{cur_date}"
             )
         except Exception as e:
             logging.error(
@@ -51,21 +52,21 @@ def crawl_data():
             )
         finally:
             pass
-
     return f"{post_crawler.base_path}/results/data"
 
 
 def s3_upload(local_path):
+    dt = current_datetime_getter()
+    dt = dt.split('_')[0]
     s3 = S3Uploader().s3_client
-    s3_path = "bronze/viral/instagram",
+    s3_path = f"bronze/viral/instagram/{dt[:4]}-{dt[4:6]}-{dt[6:]}"
     bucket_name = "brickstudy"
 
     for root, _, files in os.walk(local_path):
         for file in files:
             local_file_path = os.path.join(root, file)
-            # S3 파일 경로 설정
-            s3_file_path = os.path.join(s3_path, os.path.relpath(local_file_path, local_path))
-
+            s3_file_path = os.path.join(s3_path, file)
+            print(local_file_path)
             try:
                 s3.upload_file(local_file_path, bucket_name, s3_file_path)
                 print(f"File {local_file_path} uploaded to {bucket_name}/{s3_file_path}")
@@ -75,8 +76,9 @@ def s3_upload(local_path):
                 print(f"Failed to upload {local_file_path}: {str(e)}")
 
 
-if __name__ =='__main__':
-    local_path = crawl_data()
+if __name__ == '__main__':
+    # local_path = crawl_data()
+    local_path = "/Users/seoyeongkim/Documents/ETL/brickstudy_ingestion/src/scrapper/results/data"
     s3_upload(local_path)
 
 """
