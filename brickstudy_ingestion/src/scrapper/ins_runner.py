@@ -1,11 +1,11 @@
 from src.scrapper.brand_name_getter import get_brand_list_fr_s3
 from src.scrapper.ins_url import InsURLCrawler
 from src.scrapper.ins_data import InsDataCrawler
-from src.common.aws.s3_uploader import S3Uploader
 from src.scrapper.utils import write_local_as_json
 from src.scrapper.utils import current_datetime_getter
-import logging
 import os
+import logging
+import subprocess
 
 logger = logging.getLogger('insrunner')
 logger.setLevel(logging.ERROR)
@@ -52,34 +52,29 @@ def crawl_data():
             )
         finally:
             pass
-    return f"{post_crawler.base_path}/results/data"
+    return f"{post_crawler.base_path}/results"
 
 
-def s3_upload(local_path):
+def s3_upload(local_path: str, target: str = 'data'):
+    local_folder = os.path.join(local_path, target)
     dt = current_datetime_getter()
     dt = dt.split('_')[0]
-    s3 = S3Uploader().s3_client
-    s3_path = f"bronze/viral/instagram/{dt[:4]}-{dt[4:6]}-{dt[6:]}"
+    s3_folder = f"bronze/viral/instagram/{target}/{dt[:4]}-{dt[4:6]}-{dt[6:]}"
     bucket_name = "brickstudy"
-
-    for root, _, files in os.walk(local_path):
-        for file in files:
-            local_file_path = os.path.join(root, file)
-            s3_file_path = os.path.join(s3_path, file)
-            print(local_file_path)
-            try:
-                s3.upload_file(local_file_path, bucket_name, s3_file_path)
-                print(f"File {local_file_path} uploaded to {bucket_name}/{s3_file_path}")
-            except FileNotFoundError:
-                print(f"File not found: {local_file_path}")
-            except Exception as e:
-                print(f"Failed to upload {local_file_path}: {str(e)}")
+    try:
+        subprocess.run(
+            ['aws', 's3', 'cp', local_folder, f's3://{bucket_name}/{s3_folder}/', '--recursive'],
+            check=True
+        )
+        print(f"Folder {local_folder} uploaded to s3://{bucket_name}/{s3_folder}/")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to upload folder: {str(e)}")
 
 
 if __name__ == '__main__':
-    # local_path = crawl_data()
-    local_path = "/Users/seoyeongkim/Documents/ETL/brickstudy_ingestion/src/scrapper/results/data"
-    s3_upload(local_path)
+    local_path = crawl_data()
+    s3_upload(local_path, 'data')
+    s3_upload(local_path, 'images')
 
 """
 curl -i -X PUT -H "Accept:application/json" -H  "Content-Type:application/json" http://kafka-connect:8083/connectors/sink-s3-voluble/config -d '{
