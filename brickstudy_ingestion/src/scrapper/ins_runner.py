@@ -59,7 +59,7 @@ def s3_upload(local_path: str, target: str = 'data'):
     local_folder = os.path.join(local_path, target)
     dt = current_datetime_getter()
     dt = dt.split('_')[0]
-    s3_folder = f"bronze/viral/instagram/{target}/{dt[:4]}-{dt[4:6]}-{dt[6:]}"
+    s3_folder = f"bronze/viral/instagram/{dt[:4]}-{dt[4:6]}-{dt[6:]}/{target}"
     bucket_name = "brickstudy"
     try:
         subprocess.run(
