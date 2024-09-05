@@ -25,7 +25,6 @@ def filter_brand(file_content: str) -> list:
     for line in file_content.split('\n'):
         if line == '':
             break
-        print(f"line: {line}")
         for brandname, brandinfo in json.loads(line).items():
             brandinfo_dic = OliveyoungBrand(**brandinfo)
             if category_checker(brandinfo_dic.category):

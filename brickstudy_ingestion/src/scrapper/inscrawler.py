@@ -16,8 +16,10 @@ class InsCrawler:
                  driver: webdriver = None):
         if dev:
             proj_path = f"{'/'.join(os.getcwd().split('/')[:os.getcwd().split('/').index('ETL') + 1])}/brickstudy_ingestion"
+            self.driver = webdriver.Chrome()
         else:
             proj_path = '/opt/airflow/brickstudy_ingestion'
+            self.driver = driver
         self.base_path = f"{proj_path}/src/scrapper"
 
         self.user_id, self.password = self.load_config(dev=dev)
@@ -29,19 +31,6 @@ class InsCrawler:
             self.login()
         else:
             self.driver = driver
-        
-    def load_driver(self, dev: bool = False):
-        if dev:
-            self.driver = webdriver.Chrome()
-        else:
-            options = webdriver.ChromeOptions()
-            options.add_argument("--headless")
-            options.add_argument("--no-sandbox")
-            options.add_argument("--disable-dev-shm-usage")
-            self.driver = webdriver.Chrome(
-                executable_path=ChromeDriverManager().install(),
-                options=options
-            )
 
     def load_config(self, dev: bool = False):
         if dev:
