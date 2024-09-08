@@ -2,6 +2,7 @@ import time
 from bs4 import BeautifulSoup
 import urllib
 import re
+import random
 
 from src.scrapper.inscrawler import InsCrawler
 
@@ -23,9 +24,11 @@ class InsURLCrawler(InsCrawler):
         self.driver.get(word_url)
 
         try:
-            time.sleep(5)
-            js = 'window.scrollBy(0,1000)'
-            self.driver.execute_script(js)
+            for _ in range(10):  # 스크롤 10회
+                time.sleep(random.randrange(3, 5))
+                js = 'window.scrollBy(0,5000)'
+                self.driver.execute_script(js)
+                time.sleep(5)
             html = self.driver.page_source
             soup = BeautifulSoup(html, 'lxml')
 
@@ -64,3 +67,4 @@ class InsURLCrawler(InsCrawler):
             print('오류 발생')
 
         print(f'키워드 {keyword}의 URL 정보 수집 완료.')
+        self.driver.close()

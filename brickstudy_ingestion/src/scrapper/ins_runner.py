@@ -6,17 +6,32 @@ from src.scrapper.utils import current_datetime_getter
 import os
 import logging
 import subprocess
+import shutil
 
 logger = logging.getLogger('insrunner')
 logger.setLevel(logging.ERROR)
+
+scrapped = [
+    "포엘리에", "아워글래스",
+    "휴캄", "아이레놀", "루트리", "일소",
+    "유니크미", "본트리", "메디필", "OOTD", "앤디얼",
+    "아크네스", "그레이멜린", "제로앱솔루", "리쥬란", "폴라초이스", "메이크프렘",
+    "제로이드", "원데이즈유", "숌", "어뮤즈", "프랭클리", "네오젠", "제이엠솔루션", "리터뉴",
+    "아크웰", "아이레시피", "제이준", "글로오아시스", "어반디케이", 
+    "닥터방기원", "유리피부", "콤마나인", 
+    "라운드어라운드", "미구하라", "주미소", 
+    "에이지투웨니스", "프리메라", "애즈이즈투비", "투쿨포스쿨"
+]
 
 
 def crawl_data():
     brand_lst = get_brand_list_fr_s3()
     err = 0
-    for brand in brand_lst[13:]:
+    for brand in brand_lst[30:]:
         if err > 10: 
             break
+        if brand in scrapped: 
+            continue
 
         crawler = InsURLCrawler(dev=True)
         crawler.get_urls(keyword=brand)
@@ -41,6 +56,7 @@ def crawl_data():
             logging.error(
                 "{} data write 과정에서 오류 발생. \nerror message: {}".format(brand, e)
             )
+        break
 
     return f"{post_crawler.base_path}/results"
 
@@ -62,9 +78,15 @@ def s3_upload(local_path: str, target: str = 'data'):
 
 
 if __name__ == '__main__':
-    local_path = crawl_data()
-    s3_upload(local_path, 'data')
-    s3_upload(local_path, 'images')
+    base_path = "/Users/seoyeongkim/Documents/ETL/brickstudy_ingestion/src/scrapper/"
+
+    # shutil.copytree(base_path + "template", base_path + "results")
+
+    crawl_data()
+    s3_upload(base_path + "results", 'data')
+    s3_upload(base_path + "results", 'images')
+
+    # shutil.rmtree(base_path + "results")
 
 """
 curl -i -X PUT -H "Accept:application/json" -H  "Content-Type:application/json" http://kafka-connect:8083/connectors/sink-s3-voluble/config -d '{

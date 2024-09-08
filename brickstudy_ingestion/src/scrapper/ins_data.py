@@ -78,7 +78,7 @@ class InsDataCrawler(InsCrawler):
                 # 이미지 끝까지 넘기면서 url 추출
                 try:
                     while True:
-                        time.sleep(random.randrange(1, 3))
+                        time.sleep(1)
                         WebDriverWait(self.driver, random.randrange(1, 4))
                         self.driver.find_element(By.CLASS_NAME, '_afxw._al46._al47').click()  # 다음 이미지 버튼 클릭
                         images.append(self.driver.find_elements(By.CLASS_NAME, 'x5yr21d.xu96u03.x10l6tqk.x13vifvy.x87ps6o.xh8yej3'))
@@ -128,7 +128,7 @@ class InsDataCrawler(InsCrawler):
                 print(f"총 {len(saved_imgs)} 장의 이미지 저장")
                 self.data[key].saved_imgs = str(list(saved_imgs))
 
-                time.sleep(5)
+                time.sleep(random.randrange(3, 5))
 
             except Exception as e:
                 print(e)
