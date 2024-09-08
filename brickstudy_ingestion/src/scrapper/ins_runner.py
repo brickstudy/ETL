@@ -13,31 +13,22 @@ logger.setLevel(logging.ERROR)
 
 def crawl_data():
     brand_lst = get_brand_list_fr_s3()
-    for brand in brand_lst:
-        try:
-            crawler = InsURLCrawler(dev=True)
-            crawler.get_urls(keyword=brand)
-            crawler.materialize()
-        except Exception as e:
-            logging.error(
-                "{} url 수집 과정에서 오류 발생. \nerror message: {}".format(brand, e)
-            )
-        finally:
-            pass
+    err = 0
+    for brand in brand_lst[13:]:
+        if err > 10: 
+            break
 
-        try:
-            post_crawler = InsDataCrawler(
-                driver=crawler.driver,
-                data=crawler.data,
-                dev=True
-            )
-            post_crawler.get_post_data()
-        except Exception as e:
-            logging.error(
-                "{} post data 수집 과정에서 오류 발생. \nerror message: {}".format(brand, e)
-            )
-        finally:
-            pass
+        crawler = InsURLCrawler(dev=True)
+        crawler.get_urls(keyword=brand)
+        err += crawler.numof_error
+
+        post_crawler = InsDataCrawler(
+            driver=crawler.driver,
+            data=crawler.data,
+            dev=True
+        )
+        post_crawler.get_post_data()
+        err += post_crawler.numof_error
 
         try:
             cur_date = current_datetime_getter()
@@ -50,8 +41,7 @@ def crawl_data():
             logging.error(
                 "{} data write 과정에서 오류 발생. \nerror message: {}".format(brand, e)
             )
-        finally:
-            pass
+
     return f"{post_crawler.base_path}/results"
 
 

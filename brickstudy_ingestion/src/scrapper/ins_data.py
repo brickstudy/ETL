@@ -1,8 +1,10 @@
 import time
 from bs4 import BeautifulSoup
+from selenium.webdriver.support.wait import WebDriverWait 
 from selenium.webdriver.common.by import By
 import requests
 import re
+import random
 
 from src.scrapper.inscrawler import InsCrawler
 
@@ -23,17 +25,18 @@ class InsDataCrawler(InsCrawler):
             post_crawled_data = {line.strip() for line in f}
 
         for idx, (key, val) in enumerate(self.data.items()):
+            if self.numof_error > 10: break
 
             post_url = val.post_url
 
             if post_url in post_crawled_data:
                 continue
 
+            time.sleep(random.randrange(2, 5))
             self.driver.get(post_url)
             print(idx, '. ' + post_url)
 
             try:
-                time.sleep(5)
                 html = self.driver.page_source
                 soup = BeautifulSoup(html, 'lxml')
 
@@ -75,8 +78,8 @@ class InsDataCrawler(InsCrawler):
                 # 이미지 끝까지 넘기면서 url 추출
                 try:
                     while True:
-                        time.sleep(3)
-
+                        time.sleep(random.randrange(1, 3))
+                        WebDriverWait(self.driver, random.randrange(1, 4))
                         self.driver.find_element(By.CLASS_NAME, '_afxw._al46._al47').click()  # 다음 이미지 버튼 클릭
                         images.append(self.driver.find_elements(By.CLASS_NAME, 'x5yr21d.xu96u03.x10l6tqk.x13vifvy.x87ps6o.xh8yej3'))
 
@@ -129,6 +132,7 @@ class InsDataCrawler(InsCrawler):
 
             except Exception as e:
                 print(e)
+                self.numof_error += 1
                 print('오류 발생')
 
         # 수집 완료된 데이터 키값(post url unique id) 저장

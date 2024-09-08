@@ -59,6 +59,7 @@ class InsURLCrawler(InsCrawler):
             time.sleep(5)
 
         except Exception as e:
+            self.numof_error += 1
             print(e)
             print('오류 발생')
 
