@@ -3,38 +3,40 @@ from src.scrapper.ins_url import InsURLCrawler
 from src.scrapper.ins_data import InsDataCrawler
 from src.scrapper.utils import write_local_as_json
 from src.scrapper.utils import current_datetime_getter
+
 import os
 import logging
 import subprocess
-import shutil
 
 logger = logging.getLogger('insrunner')
 logger.setLevel(logging.ERROR)
 
-scrapped = [
-    "포엘리에", "아워글래스",
-    "휴캄", "아이레놀", "루트리", "일소",
-    "유니크미", "본트리", "메디필", "OOTD", "앤디얼",
-    "아크네스", "그레이멜린", "제로앱솔루", "리쥬란", "폴라초이스", "메이크프렘",
-    "제로이드", "원데이즈유", "숌", "어뮤즈", "프랭클리", "네오젠", "제이엠솔루션", "리터뉴",
-    "아크웰", "아이레시피", "제이준", "글로오아시스", "어반디케이", 
-    "닥터방기원", "유리피부", "콤마나인", 
-    "라운드어라운드", "미구하라", "주미소", 
-    "에이지투웨니스", "프리메라", "애즈이즈투비", "투쿨포스쿨"
+twitter_keyword = [
+    "닥터지", "아이소이", "에뛰드", "에스트라", "유세린", "토리든"
 ]
 
 
-def crawl_data():
+def get_brand_lst_wo_ingested_list():
     brand_lst = get_brand_list_fr_s3()
-    err = 0
-    for brand in brand_lst[30:]:
-        if err > 10: 
+    with open(f"{base_path}/results/finished_brand.txt", "r") as f:
+        skip = f.read()
+    return list(set(brand_lst) - set(skip[:-1].split('\n')))
+
+
+def crawl_data(brand_lst: list, err: int):
+    """
+    brand_lst 에 속한 brand이 언급된 데이터를 인스타그램으로부터 수집하여
+    ./results/data, ./results/images에 저장하는 함수
+    :brand_lst: 크롤링할 서치 키워드가 담긴 리스트
+    :err: 크롤링 진행 과정에서 발생한 오류 횟수
+    """
+    for brand in brand_lst:
+        if err > 10:
             break
-        if brand in scrapped: 
-            continue
 
         crawler = InsURLCrawler(dev=True)
         crawler.get_urls(keyword=brand)
+        crawler.materialize()
         err += crawler.numof_error
 
         post_crawler = InsDataCrawler(
@@ -52,13 +54,14 @@ def crawl_data():
                 file_path=f"{post_crawler.base_path}/results/data",
                 file_name=f"instagram_{cur_date}"
             )
+            with open(f"{post_crawler.base_path}/results/finished_brand.txt", "a") as f:
+                f.write(f"{brand}\n")
         except Exception as e:
             logging.error(
                 "{} data write 과정에서 오류 발생. \nerror message: {}".format(brand, e)
             )
-        break
 
-    return f"{post_crawler.base_path}/results"
+    return err
 
 
 def s3_upload(local_path: str, target: str = 'data'):
@@ -79,14 +82,23 @@ def s3_upload(local_path: str, target: str = 'data'):
 
 if __name__ == '__main__':
     base_path = "/Users/seoyeongkim/Documents/ETL/brickstudy_ingestion/src/scrapper/"
+    # shutil.rmtree(base_path + "results/data")
+    # shutil.rmtree(base_path + "results/images")
+    # os.mkdir(base_path + "results/data")
+    # os.mkdir(base_path + "results/images")
 
-    # shutil.copytree(base_path + "template", base_path + "results")
+    err = 0
+    # brand_lst = get_brand_lst_wo_ingested_list()
 
-    crawl_data()
-    s3_upload(base_path + "results", 'data')
-    s3_upload(base_path + "results", 'images')
+    brand_lst = twitter_keyword
+    for block_s in range(0, len(brand_lst), 10):
+        partitioned = brand_lst[block_s:block_s + 10]
+        print(f"**** start crawling {partitioned} ****")
+        err += crawl_data(brand_lst[block_s:block_s + 10], err)
 
-    # shutil.rmtree(base_path + "results")
+    # s3_upload(base_path + "results", 'data')
+    # s3_upload(base_path + "results", 'images')
+
 
 """
 curl -i -X PUT -H "Accept:application/json" -H  "Content-Type:application/json" http://kafka-connect:8083/connectors/sink-s3-voluble/config -d '{

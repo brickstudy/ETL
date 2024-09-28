@@ -5,6 +5,7 @@ import re
 import random
 
 from src.scrapper.inscrawler import InsCrawler
+from src.scrapper.http_429_handler import get_url_with_tenacity_
 
 
 class InsURLCrawler(InsCrawler):
@@ -21,14 +22,15 @@ class InsURLCrawler(InsCrawler):
     def _fetch_url_data(self, keyword):
         word = urllib.parse.quote(keyword)
         word_url = f'https://www.instagram.com/explore/tags/{word}/'
+        get_url_with_tenacity_(word_url)
         self.driver.get(word_url)
 
         try:
             for _ in range(10):  # 스크롤 10회
-                time.sleep(random.randrange(3, 5))
-                js = 'window.scrollBy(0,5000)'
+                time.sleep(random.randrange(3, 4) + random.random())
+                js = 'window.scrollBy(0,7000)'
                 self.driver.execute_script(js)
-                time.sleep(5)
+                time.sleep(random.randrange(3, 4) + random.random())
             html = self.driver.page_source
             soup = BeautifulSoup(html, 'lxml')
 
