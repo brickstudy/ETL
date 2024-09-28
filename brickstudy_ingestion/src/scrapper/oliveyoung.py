@@ -1,7 +1,7 @@
 from collections import defaultdict
 from datetime import datetime
 
-from . import get_soup
+from src.scrapper.utils import get_soup
 from src.scrapper.models import brand_generator
 
 

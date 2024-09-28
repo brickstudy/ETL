@@ -19,3 +19,20 @@ def brand_generator():
         [],
         ''
     )
+
+
+@dataclass
+class InstagramData:
+    brand: str
+    post_url: str
+    full_text: str
+    username: str
+    like: int
+    saved_imgs: str
+    date: str
+
+
+def inst_generator():
+    return InstagramData(
+        '', '', '', '', 0, '', ''
+    )
