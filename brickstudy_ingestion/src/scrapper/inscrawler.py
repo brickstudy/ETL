@@ -7,6 +7,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from src.scrapper.models import inst_generator
 
@@ -32,6 +34,11 @@ class InsCrawler:
 
         self.login(user_id, password)
 
+        if self.suspicous_check():
+            #TODO 계정 사용비율 낮추기
+            print("return True in suspicious check")
+            time.sleep()
+
     def make_driver(self):
         proxies = [
             ["211.223.89.176:51147",
@@ -56,11 +63,11 @@ class InsCrawler:
         options = webdriver.ChromeOptions()
         # options.add_argument("--headless")
         proxy = proxies[self.account_x][random.randrange(0, 4)]
-        # webdriver.DesiredCapabilities.CHROME['proxy'] = {
-        #     "socksProxy": proxy,
-        #     "socksVersion": 4,
-        #     "proxyType": "MANUAL",
-        # }
+        print(proxy)
+        webdriver.DesiredCapabilities.CHROME['proxy'] = {
+            "socksProxy": proxy,
+            "socksVersion": 4,
+        }
 
         options.add_argument("--disable-blink-features=AutomationControlled")
         options.add_experimental_option("excludeSwitches", ["enable-automation"]) 
@@ -106,6 +113,27 @@ class InsCrawler:
         with open(f"{self.base_path}/results/insdata_{current_datetime_getter()}.csv", 'w') as f:
             w = csv.writer(f)
             w.writerow(self.data.values())
+
+    def suspicous_check(self):
+        """ 현재 자동화 행동 의심받는지 확인 """
+        try:
+            if 'wbloks_1' in self.driver.page_source:
+                print("자동화된 활동 경고가 나타났습니다.")
+
+                close_button = self.driver.find_element(By.XPATH, '//div[@aria-label="Dismiss"]')
+                self.driver.execute_script("arguments[0].dispatchEvent(new MouseEvent('click', {bubbles: true}));", close_button)
+
+                # # 닫기 버튼 클릭, 계정 사용 일시 중지
+                # close_button = WebDriverWait(self.driver, 5).until(
+                #     EC.element_to_be_clickable((By.XPATH, '//div[@aria-label="Dismiss"]'))
+                # )
+                # close_button.click()
+                return True
+            return False
+        except Exception:
+            self.numof_error += 1
+            return False
+
 
 if __name__ == "__main__":
     test = InsCrawler(keywords='엔하이픈', dev=True)
