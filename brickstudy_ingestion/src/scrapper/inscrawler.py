@@ -37,7 +37,7 @@ class InsCrawler:
         if self.suspicous_check():
             #TODO 계정 사용비율 낮추기
             print("return True in suspicious check")
-            time.sleep()
+            time.sleep(300)
 
     def make_driver(self):
         proxies = [
@@ -134,6 +134,3 @@ class InsCrawler:
             self.numof_error += 1
             return False
 
-
-if __name__ == "__main__":
-    test = InsCrawler(keywords='엔하이픈', dev=True)
