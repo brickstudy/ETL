@@ -3,14 +3,9 @@ import time
 import json
 from collections import defaultdict
 import random
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 from src.scrapper.models import inst_generator
+from src.scrapper.utils import get_driver
 
 
 class InsCrawler:
@@ -21,7 +16,7 @@ class InsCrawler:
         self.account_x = random.randrange(0, 2)
         if dev:
             proj_path = f"{'/'.join(os.getcwd().split('/')[:os.getcwd().split('/').index('ETL') + 1])}/brickstudy_ingestion"
-            self.driver = self.make_driver()
+            self.driver = get_driver()
         else:
             proj_path = '/opt/airflow/brickstudy_ingestion'
             self.driver = driver
@@ -39,45 +34,6 @@ class InsCrawler:
             print("return True in suspicious check")
             time.sleep(300)
 
-    def make_driver(self):
-        proxies = [
-            ["211.223.89.176:51147",
-            "121.66.105.19:51080",
-            "121.66.105.19:51080",
-            "8.213.128.6:8080"],
-            ["8.213.129.20:8090",
-            "8.213.129.20:5566",
-            "8.213.137.155:8090",
-            "8.220.204.215:808"],
-            ["8.220.205.172:9098",
-            "211.223.89.176:51147",
-            "8.213.128.90:2019",
-            "8.213.128.90:444"]
-        ]
-        user_agent_lst = [
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/31.0.1636.0 Safari/537.36",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36",
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
-        ]
-        options = webdriver.ChromeOptions()
-        # options.add_argument("--headless")
-        proxy = proxies[self.account_x][random.randrange(0, 4)]
-        print(proxy)
-        webdriver.DesiredCapabilities.CHROME['proxy'] = {
-            "socksProxy": proxy,
-            "socksVersion": 4,
-        }
-
-        options.add_argument("--disable-blink-features=AutomationControlled")
-        options.add_experimental_option("excludeSwitches", ["enable-automation"]) 
-        options.add_experimental_option("useAutomationExtension", False)
-        driver = webdriver.Chrome(
-            options=options
-        )
-        driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-        driver.execute_cdp_cmd("Network.setUserAgentOverride", {"userAgent": user_agent_lst[self.account_x]})
-        return driver
 
     def load_config(self, dev: bool = False):
         if dev:
