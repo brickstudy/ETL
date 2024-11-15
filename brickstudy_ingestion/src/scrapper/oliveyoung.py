@@ -6,11 +6,8 @@ from src.scrapper.models import brand_generator
 
 
 class Brand:
-    def __init__(self, brand_metadata=None) -> None:
-        if brand_metadata:
-            self.brand_metadata = brand_metadata
-        else:
-            self.brand_metadata = defaultdict(brand_generator)
+    def __init__(self) -> None:
+        self.brand_metadata = defaultdict(brand_generator)
 
     def crawl_brand_metadata(self):
         self._get_brand_in_each_category(
@@ -81,13 +78,13 @@ class Brand:
         for a_tag in total_brand_list_soup.find_all('a'):
             brand_code = a_tag.get('data-ref-onlbrndcd')
             if brand_code:
-                brand_name = a_tag.text
-                if brand_name in self.brand_metadata.keys():  # Kor brand name
-                    self.brand_metadata[brand_name].brand_shop_detail_url = brand_base_url + brand_code
-                    code_name[brand_code] = brand_name
+                brand = a_tag.text
+                if brand in self.brand_metadata.keys():  # Kor brand name
+                    self.brand_metadata[brand].brand_shop_detail_url = brand_base_url + brand_code
+                    code_name[brand_code] = brand
                 else:                                # Eng brand name
                     try:
                         kor_brand_name = code_name[brand_code]
-                        self.brand_metadata[kor_brand_name].query_keyword.append(brand_name)
+                        self.brand_metadata[kor_brand_name].query_keyword.append(brand)
                     except Exception:
                         pass
