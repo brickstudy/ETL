@@ -100,7 +100,12 @@ def dict_partitioner(data: dict, level: int):
         start = end
 
 
-def write_local_as_json(data, file_path, file_name):
+def write_local_as_json(data: dict, file_path: str, file_name: str):
+    """
+    data : dictionary with the dataclass value
+    file_path : directory string where the json file created
+    file_name : file name without extension
+    """
     from dataclasses import asdict
     import json
     import os

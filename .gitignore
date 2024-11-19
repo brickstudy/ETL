@@ -16,3 +16,4 @@ kafka-data
 aws_credentials
 brickstudy_ingestion/dags/viral/tmp
 brickstudy_ingestion/src/scrapper/results
+.DS_Store

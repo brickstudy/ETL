@@ -88,3 +88,8 @@ class Brand:
                         self.brand_metadata[kor_brand_name].query_keyword.append(brand)
                     except Exception:
                         pass
+
+if __name__ == "__main__":
+    brand = Brand()
+    brand.crawl_brand_metadata()
+    print(brand.brand_metadata)
