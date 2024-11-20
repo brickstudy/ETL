@@ -1,25 +1,19 @@
 from collections import defaultdict
 from datetime import datetime
 
-from . import get_soup
+from src.scrapper.utils import get_soup
 from src.scrapper.models import brand_generator
 
 
 class Brand:
-    def __init__(self, brand_metadata=None) -> None:
-        if brand_metadata:
-            self.brand_metadata = brand_metadata
-        else:
-            self.brand_metadata = defaultdict(brand_generator)
+    def __init__(self) -> None:
+        self.brand_metadata = defaultdict(brand_generator)
 
     def crawl_brand_metadata(self):
         self._get_brand_in_each_category(
             self._get_oliveyoung_category_urls()
         )
         self._get_brand_shop_url()
-
-    def crawl_items(self):
-        self._get_items()
 
     @staticmethod
     def _get_oliveyoung_category_urls() -> list:
@@ -84,29 +78,18 @@ class Brand:
         for a_tag in total_brand_list_soup.find_all('a'):
             brand_code = a_tag.get('data-ref-onlbrndcd')
             if brand_code:
-                brand_name = a_tag.text
-                if brand_name in self.brand_metadata.keys():  # Kor brand name
-                    self.brand_metadata[brand_name].brand_shop_detail_url = brand_base_url + brand_code
-                    code_name[brand_code] = brand_name
+                brand = a_tag.text
+                if brand in self.brand_metadata.keys():  # Kor brand name
+                    self.brand_metadata[brand].brand_shop_detail_url = brand_base_url + brand_code
+                    code_name[brand_code] = brand
                 else:                                # Eng brand name
                     try:
                         kor_brand_name = code_name[brand_code]
-                        self.brand_metadata[kor_brand_name].query_keyword.append(brand_name)
+                        self.brand_metadata[kor_brand_name].query_keyword.append(brand)
                     except Exception:
                         pass
 
-    def _get_items(self) -> None:
-        """
-        각 브랜드의 제품 리스트, 해당 제품의 프로모션 여부 추가
-        """
-        for brand in self.brand_metadata.keys():
-            brand_url = self.brand_metadata[brand].brand_shop_detail_url
-            brand_url_soup = get_soup(brand_url)
-            if brand_url_soup is None:
-                continue
-            item_dic = {}
-            for div in brand_url_soup.find_all('div', class_='prod-info'):
-                item_name = div.find('a').get('data-attr')
-                is_in_promotion = div.find('div', class_="discount") is not None
-                item_dic[item_name] = is_in_promotion
-            self.brand_metadata[brand].items = item_dic
+if __name__ == "__main__":
+    brand = Brand()
+    brand.crawl_brand_metadata()
+    print(brand.brand_metadata)

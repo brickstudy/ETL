@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 
 from airflow import DAG
 from airflow.models import Variable
@@ -20,11 +21,11 @@ default_args = {
 }
 # =========================================
 
-
 OUTPUT_FILENAME = "test.csv"
 SEARCH_KEYWORD = "enhypen"
 LIMIT = 10
 TOKEN = Variable.get("TWITTER_CRAWLER_AUTH_TOKEN_PASSWORD")
+HOST_BASE_PATH = '/Users/seoyeongkim/Documents/ETL'
 
 with DAG(
     dag_id=DAG_ID,
@@ -36,15 +37,17 @@ with DAG(
         task_id='t_docker',
         image='brickstudy/twitter_crawler:latest',
         container_name='twitter_crawler',
+        api_version='1.37',
         auto_remove=True,
         mount_tmp_dir=False,
         mounts=[
-            Mount(source="/opt/airflow/logs/tweets-data", target="/app/tweets-data", type="bind"),
+            Mount(source=f"{HOST_BASE_PATH}/logs", target="/app/tweets-data", type="bind"),
         ],
         command=[
+            "bash", "-c",
             f"npx --yes tweet-harvest@latest -o {OUTPUT_FILENAME} -s {SEARCH_KEYWORD} -l {LIMIT} --token {TOKEN}"
         ],
-        docker_url='unix://var/run/docker.sock',
+        docker_url='tcp://docker-socket-proxy:2375',
         network_mode='bridge',
     )
 
