@@ -20,16 +20,17 @@ class Items:
         self.item_id = None
         self.driver = webdriver.Chrome()
 
-    def crawl_items(self):
+    def crawl_total_items(self):
         # brand 페이지에서 전체 item 정보들 수집
         self.driver.get(self.brand_url)
         self._get_items()
 
+    def crawl_reviews_in_each_items(self, item_id: str):
         # 각 item 페이지에서 리뷰 수집
-        for item_id in self.data.keys():
-            self.item_id = item_id
-            self.driver.get(self.data[item_id].item_detail_url)
-            self._get_reviews()
+        self.item_id = item_id
+        item_url = self.data[item_id].item_detail_url
+        self.driver.get(item_url)
+        self._get_reviews()
 
     def _get_items(self) -> None:
         """
@@ -43,12 +44,9 @@ class Items:
             for next_page in next_pages:
                 try:
                     self.driver.execute_script("arguments[0].click();", next_page)
-                    time.sleep(random.randrange(5, 10) + random.random())
-                    response = requests.get(self.brand_url)
-                    if response.status_code != 200:
-                        time.sleep(10)
+                    time.sleep(random.randrange(5, 7) + random.random())
                 except:
-                    time.sleep(10)
+                    time.sleep(2)
                 self._get_products()
 
     def _get_products(self) -> None:
@@ -78,7 +76,7 @@ class Items:
             review_button_element = self.driver.find_element(By.CSS_SELECTOR, 'a.goods_reputation[data-attr="상품상세^상품상세_SortingTab^리뷰"]')
             self.driver.execute_script("arguments[0].scrollIntoView(true);", review_button_element)
             self.driver.execute_script("arguments[0].click();", review_button_element)
-            time.sleep(random.randint(2, 4))
+            time.sleep(random.randint(1, 3))
         except Exception as e:
             print(f"리뷰 버튼 클릭 실패: {e}")
     
@@ -87,7 +85,7 @@ class Items:
             latest_button_element = self.driver.find_element(By.CSS_SELECTOR, 'a[data-sort-type-code="latest"][data-attr="상품상세^리뷰정렬^최신순"]')
             self.driver.execute_script("arguments[0].scrollIntoView(true);", latest_button_element)
             self.driver.execute_script("arguments[0].click();", latest_button_element)
-            time.sleep(random.randint(2, 4))
+            time.sleep(random.randint(1, 3))
         except Exception as e:
             print(f"최신순 버튼 클릭 실패: {e}")
 
@@ -100,7 +98,7 @@ class Items:
             for i in range(len(next_pages)):
                 try:
                     self.driver.execute_script("arguments[0].click();", next_pages[i])
-                    time.sleep(random.randrange(5, 10) + random.random())
+                    time.sleep(random.randrange(3, 5) + random.random())
                 except:
                     print("exception block in page moving")
                     time.sleep(3)
@@ -121,6 +119,12 @@ if __name__ == "__main__":
     brand_name = "토리든"
     brand_url = "https://www.oliveyoung.co.kr/store/display/getBrandShopDetail.do?onlBrndCd=A002820&t_page=%EC%83%81%ED%92%88%EC%83%81%EC%84%B8&t_click=%EB%B8%8C%EB%9E%9C%EB%93%9C%EA%B4%80_%EC%83%81%EB%8B%A8&t_brand_name=%ED%86%A0%EB%A6%AC%EB%93%A0"
     item_x = Items(brand_name, brand_url)
-    item_x.crawl_items()
+    item_x.crawl_total_items()
+    print("crawl total item is done")
+    print(item_x.data)
     
-    write_local_as_json(item_x.data, './', 'toridn')
+    item_list = item_x.data.keys()
+    for idx, test_item in enumerate(item_list):
+        item_x.crawl_reviews_in_each_items(item_id=test_item)
+        if idx % 4 == 0:
+            write_local_as_json(item_x.data, './logs', f"{brand_name}_{idx}")
